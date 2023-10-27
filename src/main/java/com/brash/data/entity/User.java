@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+import java.util.Set;
+
 @Entity
 @Table(name = "user_info")
 @AllArgsConstructor
@@ -23,4 +26,7 @@ public class User {
 
     @Column(name = "original_id", nullable = false)
     private Long originalId;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Mark> marks;
 }

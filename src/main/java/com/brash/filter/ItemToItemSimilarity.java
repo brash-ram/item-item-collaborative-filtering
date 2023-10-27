@@ -2,8 +2,9 @@ package com.brash.filter;
 
 import com.brash.data.entity.Item;
 
+import java.util.List;
+
 public interface ItemToItemSimilarity {
 
-    void updateAllSimilarity();
-    void updateSimilarity(Item item);
+    List<PartSimilarItems> updateSimilarity(List<Item> items);
 }

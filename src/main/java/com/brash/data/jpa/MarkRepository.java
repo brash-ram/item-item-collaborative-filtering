@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface MarkRepository extends JpaRepository<Mark, Long> {
 
+    List<Mark> findAllByIsGenerated(boolean isGenerated);
 }

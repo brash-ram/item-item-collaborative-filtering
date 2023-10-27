@@ -1,11 +1,12 @@
 package com.brash.data.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
+import org.hibernate.Hibernate;
+
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "item")
@@ -14,7 +15,8 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class Item {
+@ToString
+public class Item implements Comparable<Item> {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "Item_SEQ")
     @SequenceGenerator(name = "Item_SEQ")
@@ -24,4 +26,25 @@ public class Item {
     @Column(name = "original_id", nullable = false)
     private Long originalId;
 
+
+    @OneToMany(mappedBy = "item")
+    private Set<Mark> marks;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Item item = (Item) o;
+        return id != null && Objects.equals(id, item.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, originalId, marks);
+    }
+
+    @Override
+    public int compareTo(Item o) {
+        return Long.compare(id, o.getId());
+    }
 }
