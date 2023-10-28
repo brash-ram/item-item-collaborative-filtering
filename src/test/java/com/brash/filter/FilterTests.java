@@ -8,8 +8,7 @@ import com.brash.data.entity.User;
 import com.brash.data.jpa.ItemRepository;
 import com.brash.data.jpa.MarkRepository;
 import com.brash.data.jpa.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -30,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(classes = FilterApplication.class)
 @Import(IntegrationEnvironment.JpaIntegrationEnvironmentConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class FilterTests {
 
     @Autowired
@@ -46,8 +46,8 @@ public class FilterTests {
 
     @Autowired
     private Filter filter;
-    private static List<User> TEST_USERS = new ArrayList<>();
-    private static List<Item> TEST_ITEMS = new ArrayList<>();
+    private static final List<User> TEST_USERS = new ArrayList<>();
+    private static final List<Item> TEST_ITEMS = new ArrayList<>();
 
     public void saveData() {
         for (long i = 0L; i < 4; i++) {
@@ -73,6 +73,7 @@ public class FilterTests {
     @Test
     @Transactional
     @Rollback
+    @Order(1)
     public void itemItemSimilarityCalculateTest() {
         saveData();
         List<Item> items = itemRepository.findAll();
@@ -85,13 +86,51 @@ public class FilterTests {
         assertEquals(0.789, part.get(0).similarValue, 0.01);
         assertEquals(0.869, part.get(1).similarValue, 0.01);
         assertEquals(0.9, part.get(2).similarValue, 0.1);
+        TestTransaction.flagForRollback();
+        TestTransaction.end();
     }
 
     @Test
     @Transactional
     @Rollback
+    @Order(2)
     public void itemItemRecommendationCalculateTest() {
-        saveData();
+        filter.updateRecommendations();
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        List<Mark> marks = markRepository.findAll();
+        assertEquals(12, marks.size());
+
+        List<Mark> markUserUser1Item2 = marks.stream()
+                .filter(mark ->
+                        mark.getUser().equals(TEST_USERS.get(0)) &&
+                                mark.getItem().equals(TEST_ITEMS.get(1)))
+                .toList();
+        assertEquals(1, markUserUser1Item2.size());
+        assertEquals(2.49, markUserUser1Item2.get(0).getMark(), 0.1);
+
+        List<Mark> markUserUser2Item3 = marks.stream()
+                .filter(mark ->
+                        mark.getUser().equals(TEST_USERS.get(1)) &&
+                                mark.getItem().equals(TEST_ITEMS.get(2)))
+                .toList();
+        assertEquals(1, markUserUser2Item3.size());
+        assertEquals(3.43, markUserUser2Item3.get(0).getMark(), 0.1);
+
+        List<Mark> markUserUser4Item1 = marks.stream()
+                .filter(mark ->
+                        mark.getUser().equals(TEST_USERS.get(3)) &&
+                                mark.getItem().equals(TEST_ITEMS.get(0)))
+                .toList();
+        assertEquals(1, markUserUser4Item1.size());
+        assertEquals(2.0, markUserUser4Item1.get(0).getMark(), 0.1);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    @Order(3)
+    public void repeatedFilterTest() {
         filter.updateRecommendations();
         TestTransaction.flagForCommit();
         TestTransaction.end();
@@ -123,4 +162,5 @@ public class FilterTests {
         assertEquals(1, markUserUser4Item1.size());
         assertEquals(2.0, markUserUser4Item1.get(0).getMark(), 0.1);
     }
+
 }

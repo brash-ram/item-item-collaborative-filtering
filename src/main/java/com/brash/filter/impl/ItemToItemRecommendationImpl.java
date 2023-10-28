@@ -53,6 +53,7 @@ public class ItemToItemRecommendationImpl implements ItemToItemRecommendation {
                         userMarksForGenerateNewMark,
                         item
                 );
+
                 generatedMarkForCurrentItem.setItem(item).setUser(mapForMark.getKey());
                 generatedMarks.add(generatedMarkForCurrentItem);
             }
@@ -75,7 +76,7 @@ public class ItemToItemRecommendationImpl implements ItemToItemRecommendation {
             top += foundMark.getMark() * part.similarValue;
             bottom += part.similarValue;
         }
-        return new Mark().setMark(top / bottom);
+        return new Mark().setMark(top / bottom).setIsGenerated(true);
     }
 
     private List<PartSimilarItems> getPartsForGenerateMark
