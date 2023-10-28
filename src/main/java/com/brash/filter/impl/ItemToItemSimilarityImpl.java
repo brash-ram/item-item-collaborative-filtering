@@ -24,10 +24,21 @@ public class ItemToItemSimilarityImpl implements ItemToItemSimilarity {
     @Override
     @Transactional
     public List<PartSimilarItems>  updateSimilarity(List<Item> items) {
-        return ItemUtils.generatePairItems(items);
+        List<PartSimilarItems> parts = calculateAllSimilarity(ItemUtils.generatePairItems(items));
+        return filterNullValue(parts);
     }
 
-    private void calculateAllSimilarity(List<PartSimilarItems> parts) {
+    private List<PartSimilarItems> filterNullValue(List<PartSimilarItems> parts) {
+        List<PartSimilarItems> notNullPart = new ArrayList<>();
+        for (PartSimilarItems part : parts) {
+            if (part.similarValue != null) {
+                notNullPart.add(part);
+            }
+        }
+        return notNullPart;
+    }
+
+    private List<PartSimilarItems> calculateAllSimilarity(List<PartSimilarItems> parts) {
         for (PartSimilarItems part : parts) {
             List<Mark> marksItem1 = new ArrayList<>(); //from same users
             List<Mark> marksItem2 = new ArrayList<>();
@@ -64,10 +75,11 @@ public class ItemToItemSimilarityImpl implements ItemToItemSimilarity {
                     marksItem2.get(0).getMark(), marksItem2.get(1).getMark()
             );
         }
+        return parts;
     }
 
-    private double calculateSimilar(int markUser1Item1, int markUser1Item2,
-                                    int markUser2Item1, int markUser2Item2) {
+    private double calculateSimilar(double markUser1Item1, double markUser1Item2,
+                                    double markUser2Item1, double markUser2Item2) {
         double top = (markUser1Item1 * markUser2Item1) + (markUser1Item2 * markUser2Item2);
         double bottom = sqrt(pow(markUser1Item1, 2) + pow(markUser1Item2, 2)) *
                 sqrt(pow(markUser2Item1, 2) + pow(markUser2Item2, 2));

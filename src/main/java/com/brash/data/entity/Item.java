@@ -5,8 +5,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.Hibernate;
 
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "item")
@@ -28,7 +27,7 @@ public class Item implements Comparable<Item> {
 
 
     @OneToMany(mappedBy = "item")
-    private Set<Mark> marks;
+    private SortedSet<Mark> marks = new TreeSet<>();
 
     @Override
     public boolean equals(Object o) {
@@ -40,7 +39,7 @@ public class Item implements Comparable<Item> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, originalId, marks);
+        return Objects.hash(id);
     }
 
     @Override

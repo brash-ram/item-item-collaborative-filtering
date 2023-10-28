@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.hibernate.Hibernate;
+
+import java.util.Objects;
 
 @Entity
 @Table(name = "mark")
@@ -14,7 +17,7 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class Mark {
+public class Mark implements Comparable<Mark> {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "Mark_SEQ")
     @SequenceGenerator(name = "Mark_SEQ")
@@ -30,8 +33,26 @@ public class Mark {
     private Item item;
 
     @Column(name = "mark_value")
-    private Integer mark;
+    private Double mark;
 
     @Column(name = "is_generated", nullable = false)
     private Boolean isGenerated = false;
+
+    @Override
+    public int compareTo(Mark o) {
+        return Long.compare(id, o.getId());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Mark mark = (Mark) o;
+        return id != null && Objects.equals(id, mark.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

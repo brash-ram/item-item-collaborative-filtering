@@ -12,7 +12,7 @@ public class ItemUtils {
         List<PartSimilarItems> partSimilarItems = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
             Item item = items.get(i);
-            for (int n = 0; n < items.size(); n++) {
+            for (int n = i + 1; n < items.size(); n++) {
                 List<Item> part = new ArrayList<>();
                 part.add(item);
                 part.add(items.get(n));

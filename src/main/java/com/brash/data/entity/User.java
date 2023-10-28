@@ -6,9 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.hibernate.Hibernate;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Objects;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 @Entity
 @Table(name = "user_info")
@@ -28,5 +30,19 @@ public class User {
     private Long originalId;
 
     @OneToMany(mappedBy = "user")
-    private Set<Mark> marks;
+    private SortedSet<Mark> marks = new TreeSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        User user = (User) o;
+        return id != null && Objects.equals(id, user.id);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

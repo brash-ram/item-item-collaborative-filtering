@@ -39,7 +39,7 @@ public class MarkRepositoryTests {
     public void testFindAllMarks() {
         Item item = itemRepository.saveAndFlush(new Item().setOriginalId(2L));
         User user = userRepository.saveAndFlush(new User().setOriginalId(2L));
-        Mark mark = markRepository.saveAndFlush(new Mark(null, user, item, 5, false));
+        Mark mark = markRepository.saveAndFlush(new Mark(null, user, item, 5.0, false));
 
         Item savedItem = itemRepository.findById(item.getId()).get();
         User savedUser = userRepository.findById(user.getId()).get();
