@@ -12,14 +12,12 @@ import com.brash.filter.ItemToItemSimilarity;
 import com.brash.filter.PartSimilarItems;
 import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @Component

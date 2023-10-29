@@ -3,9 +3,6 @@ package com.brash.filter.impl;
 import com.brash.data.entity.Item;
 import com.brash.data.entity.Mark;
 import com.brash.data.entity.User;
-import com.brash.data.jpa.ItemRepository;
-import com.brash.data.jpa.MarkRepository;
-import com.brash.data.jpa.UserRepository;
 import com.brash.filter.ItemToItemSimilarity;
 import com.brash.filter.PartSimilarItems;
 import com.brash.util.ItemUtils;
@@ -14,9 +11,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.ListIterator;
 
-import static java.lang.Math.*;
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 
 @Component
 @RequiredArgsConstructor

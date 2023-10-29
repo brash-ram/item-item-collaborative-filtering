@@ -6,7 +6,6 @@ import com.brash.data.entity.User;
 import com.brash.data.jpa.MarkRepository;
 import com.brash.filter.ItemToItemRecommendation;
 import com.brash.filter.PartSimilarItems;
-import jakarta.servlet.http.Part;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
