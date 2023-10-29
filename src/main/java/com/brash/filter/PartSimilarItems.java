@@ -2,10 +2,12 @@ package com.brash.filter;
 
 import com.brash.data.entity.Item;
 import lombok.AllArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
 @AllArgsConstructor
+@ToString
 public class PartSimilarItems {
      public List<Item> items;
      public Double similarValue;

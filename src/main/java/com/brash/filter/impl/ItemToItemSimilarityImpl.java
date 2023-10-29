@@ -11,6 +11,7 @@ import com.brash.filter.PartSimilarItems;
 import com.brash.util.ItemUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -21,21 +22,35 @@ import static java.lang.Math.*;
 @RequiredArgsConstructor
 public class ItemToItemSimilarityImpl implements ItemToItemSimilarity {
 
+    @Value("${similarity.update-factor}")
+    private double UPDATE_FACTOR;
+
     @Override
     @Transactional
     public List<PartSimilarItems>  updateSimilarity(List<Item> items) {
         List<PartSimilarItems> parts = calculateAllSimilarity(ItemUtils.generatePairItems(items));
-        return filterNullValue(parts);
+        return filterUpdateValue(filterNullValue(parts));
     }
 
     private List<PartSimilarItems> filterNullValue(List<PartSimilarItems> parts) {
-        List<PartSimilarItems> notNullPart = new ArrayList<>();
+        parts.removeIf(part -> part.similarValue == null);
+        return parts;
+    }
+
+    private List<PartSimilarItems> filterUpdateValue(List<PartSimilarItems> parts) {
+        double average = 0.0;
         for (PartSimilarItems part : parts) {
-            if (part.similarValue != null) {
-                notNullPart.add(part);
+            average += part.similarValue;
+        }
+        average /= parts.size();
+        for (PartSimilarItems part : parts) {
+            if (part.similarValue > average) {
+                part.similarValue *= 1 + UPDATE_FACTOR;
+            } else {
+                part.similarValue *= 1 - UPDATE_FACTOR;
             }
         }
-        return notNullPart;
+        return parts;
     }
 
     private List<PartSimilarItems> calculateAllSimilarity(List<PartSimilarItems> parts) {
@@ -51,21 +66,35 @@ public class ItemToItemSimilarityImpl implements ItemToItemSimilarity {
             List<User> intersectUsers = new ArrayList<>();
 
             for (Mark mark : item1.getMarks()) {
-                if (usersFromMarksItem2.contains(mark.getUser())) {
+                if (!mark.getIsGenerated() && usersFromMarksItem2.contains(mark.getUser())) {
                     marksItem1.add(mark);
                     intersectUsers.add(mark.getUser());
-                    if (marksItem1.size() == 2) break;
                 }
             }
 
             if (marksItem1.size() < 2) continue;
 
             for (Mark mark : item2.getMarks()) {
-                if (intersectUsers.contains(mark.getUser())) {
+                if (!mark.getIsGenerated() && intersectUsers.contains(mark.getUser())) {
                     marksItem2.add(mark);
                     if (marksItem2.size() == 2) break;
                 }
             }
+
+            ListIterator<Mark> iterator = marksItem1.listIterator();
+            while (iterator.hasNext()) {
+                Mark markItem1 = iterator.next();
+                boolean isDeleted = true;
+                for (Mark markItem2 : marksItem2) {
+                    if (markItem2.getUser().equals(markItem1.getUser())) {
+                        isDeleted = false;
+                        break;
+                    }
+                }
+                if (isDeleted) iterator.remove();
+            }
+
+            if (marksItem2.size() < 2) continue;
 
             marksItem1.sort(Comparator.comparingLong(o -> o.getUser().getId()));
             marksItem2.sort(Comparator.comparingLong(o -> o.getUser().getId()));

@@ -83,8 +83,8 @@ public class FilterTests {
 
         part.sort(Comparator.comparingDouble(o -> o.similarValue));
 
-        assertEquals(0.789, part.get(0).similarValue, 0.01);
-        assertEquals(0.869, part.get(1).similarValue, 0.01);
+        assertEquals(0.71, part.get(0).similarValue, 0.01);
+        assertEquals(0.95, part.get(1).similarValue, 0.01);
         assertEquals(0.9, part.get(2).similarValue, 0.1);
         TestTransaction.flagForRollback();
         TestTransaction.end();
@@ -115,7 +115,7 @@ public class FilterTests {
                                 mark.getItem().equals(TEST_ITEMS.get(2)))
                 .toList();
         assertEquals(1, markUserUser2Item3.size());
-        assertEquals(3.43, markUserUser2Item3.get(0).getMark(), 0.1);
+        assertEquals(3.27, markUserUser2Item3.get(0).getMark(), 0.1);
 
         List<Mark> markUserUser4Item1 = marks.stream()
                 .filter(mark ->
@@ -152,7 +152,7 @@ public class FilterTests {
                                 mark.getItem().equals(TEST_ITEMS.get(2)))
                 .toList();
         assertEquals(1, markUserUser2Item3.size());
-        assertEquals(3.43, markUserUser2Item3.get(0).getMark(), 0.1);
+        assertEquals(3.27, markUserUser2Item3.get(0).getMark(), 0.1);
 
         List<Mark> markUserUser4Item1 = marks.stream()
                 .filter(mark ->

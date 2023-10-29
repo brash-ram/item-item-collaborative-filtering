@@ -3,16 +3,22 @@ package com.brash.filter.impl;
 import com.brash.data.entity.Item;
 import com.brash.data.entity.Mark;
 import com.brash.data.entity.User;
+import com.brash.data.jpa.MarkRepository;
 import com.brash.filter.ItemToItemRecommendation;
 import com.brash.filter.PartSimilarItems;
 import jakarta.servlet.http.Part;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class ItemToItemRecommendationImpl implements ItemToItemRecommendation {
+
+    private final MarkRepository markRepository;
+
     @Override
     public List<Mark> generateAllRecommendation(
             List<PartSimilarItems> partSimilarItems,
@@ -29,7 +35,8 @@ public class ItemToItemRecommendationImpl implements ItemToItemRecommendation {
         List<Mark> generatedMarks = new ArrayList<>();
 
         for (Map.Entry<User, Set<Item>> mapForMark : mapForMarks.entrySet()) {
-            List<Mark> userMarks = new ArrayList<>(mapForMark.getKey().getMarks());
+            User currentUser = mapForMark.getKey();
+            List<Mark> userMarks = new ArrayList<>(currentUser.getMarks());
             Set<Item> userMarkedItem = userMarks.stream()
                     .filter(mark -> !mark.getIsGenerated())
                     .map(Mark::getItem).collect(Collectors.toSet());
@@ -51,10 +58,10 @@ public class ItemToItemRecommendationImpl implements ItemToItemRecommendation {
                 Mark generatedMarkForCurrentItem = generateMarkForCurrentItem(
                         partsForGenerateMark,
                         userMarksForGenerateNewMark,
-                        item
+                        item,
+                        currentUser
                 );
 
-                generatedMarkForCurrentItem.setItem(item).setUser(mapForMark.getKey());
                 generatedMarks.add(generatedMarkForCurrentItem);
             }
         }
@@ -62,8 +69,9 @@ public class ItemToItemRecommendationImpl implements ItemToItemRecommendation {
     }
 
     private Mark generateMarkForCurrentItem(List<PartSimilarItems> partsForGenerateMark,
-                                                  List<Mark> generatedMarkForCurrentItem,
-                                                  Item currentItem) {
+                                            List<Mark> generatedMarkForCurrentItem,
+                                            Item currentItem,
+                                            User currentUser) {
         generatedMarkForCurrentItem.sort(Comparator.comparingLong(value -> value.getItem().getId()));
         double top = 0.0;
         double bottom = 0.0;
@@ -76,7 +84,16 @@ public class ItemToItemRecommendationImpl implements ItemToItemRecommendation {
             top += foundMark.getMark() * part.similarValue;
             bottom += part.similarValue;
         }
-        return new Mark().setMark(top / bottom).setIsGenerated(true);
+        double markValue = top / bottom;
+        Optional<Mark> markOptional = markRepository.findByUserEqualsAndItemEquals(currentUser, currentItem);
+        if (markOptional.isPresent()) {
+            Mark mark = markOptional.get();
+            return mark.setMark(markValue);
+        } else {
+            return new Mark().setMark(markValue).setIsGenerated(true)
+                    .setItem(currentItem).setUser(currentUser);
+        }
+
     }
 
     private List<PartSimilarItems> getPartsForGenerateMark

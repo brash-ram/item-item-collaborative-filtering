@@ -1,10 +1,7 @@
 package com.brash.data.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.Hibernate;
 
@@ -19,6 +16,7 @@ import java.util.TreeSet;
 @Getter
 @Setter
 @Accessors(chain = true)
+@ToString
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "User_SEQ")
@@ -30,6 +28,7 @@ public class User {
     private Long originalId;
 
     @OneToMany(mappedBy = "user")
+    @ToString.Exclude
     private SortedSet<Mark> marks = new TreeSet<>();
 
     @Override

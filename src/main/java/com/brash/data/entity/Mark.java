@@ -1,10 +1,7 @@
 package com.brash.data.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.Hibernate;
 
@@ -17,6 +14,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Accessors(chain = true)
+@ToString
 public class Mark implements Comparable<Mark> {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "Mark_SEQ")

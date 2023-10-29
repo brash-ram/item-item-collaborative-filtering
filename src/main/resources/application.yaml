@@ -2,6 +2,9 @@
 #    queue: scrapper-queue
 #    exchange: scrapper-exchange
 
+similarity:
+    update-factor: 0.1
+
 server:
     port: 8081
 

@@ -27,6 +27,7 @@ public class Item implements Comparable<Item> {
 
 
     @OneToMany(mappedBy = "item")
+    @ToString.Exclude
     private SortedSet<Mark> marks = new TreeSet<>();
 
     @Override
