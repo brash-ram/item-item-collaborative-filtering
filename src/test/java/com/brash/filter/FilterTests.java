@@ -58,20 +58,20 @@ public class FilterTests {
      */
     public void saveData() {
         for (long i = 0L; i < 4; i++) {
-            TEST_USERS.add(userRepository.saveAndFlush(new User().setOriginalId(i)));
+            TEST_USERS.add(userRepository.save(new User().setOriginalId(i)));
         }
         for (long i = 0L; i < 3; i++) {
-            TEST_ITEMS.add(itemRepository.saveAndFlush(new Item().setOriginalId(i)));
+            TEST_ITEMS.add(itemRepository.save(new Item().setOriginalId(i)));
         }
-        markRepository.saveAndFlush(new Mark(null, TEST_USERS.get(0), TEST_ITEMS.get(0), 2.0, false));
-        markRepository.saveAndFlush(new Mark(null, TEST_USERS.get(0), TEST_ITEMS.get(2), 3.0, false));
-        markRepository.saveAndFlush(new Mark(null, TEST_USERS.get(1), TEST_ITEMS.get(0), 5.0, false));
-        markRepository.saveAndFlush(new Mark(null, TEST_USERS.get(1), TEST_ITEMS.get(1), 2.0, false));
-        markRepository.saveAndFlush(new Mark(null, TEST_USERS.get(2), TEST_ITEMS.get(0), 3.0, false));
-        markRepository.saveAndFlush(new Mark(null, TEST_USERS.get(2), TEST_ITEMS.get(1), 3.0, false));
-        markRepository.saveAndFlush(new Mark(null, TEST_USERS.get(2), TEST_ITEMS.get(2), 1.0, false));
-        markRepository.saveAndFlush(new Mark(null, TEST_USERS.get(3), TEST_ITEMS.get(1), 2.0, false));
-        markRepository.saveAndFlush(new Mark(null, TEST_USERS.get(3), TEST_ITEMS.get(2), 2.0, false));
+        markRepository.save(new Mark(null, TEST_USERS.get(0), TEST_ITEMS.get(0), 2.0, false));
+        markRepository.save(new Mark(null, TEST_USERS.get(0), TEST_ITEMS.get(2), 3.0, false));
+        markRepository.save(new Mark(null, TEST_USERS.get(1), TEST_ITEMS.get(0), 5.0, false));
+        markRepository.save(new Mark(null, TEST_USERS.get(1), TEST_ITEMS.get(1), 2.0, false));
+        markRepository.save(new Mark(null, TEST_USERS.get(2), TEST_ITEMS.get(0), 3.0, false));
+        markRepository.save(new Mark(null, TEST_USERS.get(2), TEST_ITEMS.get(1), 3.0, false));
+        markRepository.save(new Mark(null, TEST_USERS.get(2), TEST_ITEMS.get(2), 1.0, false));
+        markRepository.save(new Mark(null, TEST_USERS.get(3), TEST_ITEMS.get(1), 2.0, false));
+        markRepository.save(new Mark(null, TEST_USERS.get(3), TEST_ITEMS.get(2), 2.0, false));
         TestTransaction.flagForCommit();
         TestTransaction.end();
         TestTransaction.start();
