@@ -17,24 +17,26 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
+/**
+ * Реализация интерфейса, описывающего запуск алгоритма совместной фильтрации
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class FilterImpl implements Filter {
 
     private final ItemToItemSimilarity itemToItemSimilarity;
-
     private final ItemToItemRecommendation itemToItemRecommendation;
-
-    private final ExecutorService executorService;
 
     private final ItemRepository itemRepository;
     private final MarkRepository markRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Запуск обновления старых и генерации новых оценок рекомендации
+     */
     @Override
     @Transactional
     public void updateRecommendations() {
@@ -46,6 +48,14 @@ public class FilterImpl implements Filter {
         markRepository.saveAll(generatedMarks);
     }
 
+    /**
+     * Создания набора пользователей для которых нужно сгенерировать
+     * или обновить оценку рекомендации для указанных элементов.
+     * @param items Все элементы системы
+     * @param users Все пользователи системы
+     * @return Набор пользователей для которых нужно сгенерировать
+     * или обновить оценку рекомендации для указанных элементов.
+     */
     protected Map<User, Set<Item>> getUserAndItemForRecommendationMark(Set<Item> items, List<User> users) {
         Map<User, Set<Item>> mapForMark = new HashMap<>();
 

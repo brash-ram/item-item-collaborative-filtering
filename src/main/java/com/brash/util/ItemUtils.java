@@ -6,8 +6,17 @@ import com.brash.filter.PartSimilarItems;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Класс утилита для работы с элементами
+ */
 public class ItemUtils {
 
+    /**
+     * Генерация пар элементов из данного списка items.
+     * Отсутствуют пары одинаковых элементов и перестановки в парах.
+     * @param items Список элементов, для которого нужно сгенерировать пары элементов
+     * @return Пары сходства элементов
+     */
     public static List<PartSimilarItems> generatePairItems(List<Item> items) {
         List<PartSimilarItems> partSimilarItems = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {

@@ -7,6 +7,9 @@ import org.hibernate.Hibernate;
 
 import java.util.Objects;
 
+/**
+ * Оценка пользователем элемента системы совместной фильтрации
+ */
 @Entity
 @Table(name = "mark")
 @AllArgsConstructor

@@ -11,6 +11,9 @@ import org.testcontainers.utility.DockerImageName;
 
 import javax.sql.DataSource;
 
+/**
+ * Конфигурация тестирования в тест-контейнере
+ */
 @ContextConfiguration(classes = IntegrationEnvironment.JpaIntegrationEnvironmentConfiguration.class)
 public abstract class IntegrationEnvironment {
 

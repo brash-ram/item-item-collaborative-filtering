@@ -25,6 +25,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Класс тестов для алгоритма совместной фильтрации
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = FilterApplication.class)
 @Import(IntegrationEnvironment.JpaIntegrationEnvironmentConfiguration.class)
@@ -49,6 +52,10 @@ public class FilterTests {
     private static final List<User> TEST_USERS = new ArrayList<>();
     private static final List<Item> TEST_ITEMS = new ArrayList<>();
 
+    /**
+     * Загрузка тестовой матрицы оценок.
+     * Просчет примера https://www.geeksforgeeks.org/item-to-item-based-collaborative-filtering/
+     */
     public void saveData() {
         for (long i = 0L; i < 4; i++) {
             TEST_USERS.add(userRepository.saveAndFlush(new User().setOriginalId(i)));
@@ -70,6 +77,9 @@ public class FilterTests {
         TestTransaction.start();
     }
 
+    /**
+     * Расчет значений пар сходства
+     */
     @Test
     @Transactional
     @Rollback
@@ -90,11 +100,14 @@ public class FilterTests {
         TestTransaction.end();
     }
 
+    /**
+     * Просчет значений оценок рекомендаций
+     */
     @Test
     @Transactional
     @Rollback
     @Order(2)
-    public void itemItemRecommendationCalculateTest() {
+    public void filterTest() {
         filter.updateRecommendations();
         TestTransaction.flagForCommit();
         TestTransaction.end();
@@ -126,6 +139,11 @@ public class FilterTests {
         assertEquals(2.0, markUserUser4Item1.get(0).getMark(), 0.1);
     }
 
+    /**
+     * Повторный просчет оценок для тестирования
+     * не только генерации новых значений, но и обновления существующих.
+     * Оценки сгенерированные в тесте Order(2) сохраняются в бд для этого теста.
+     */
     @Test
     @Transactional
     @Rollback

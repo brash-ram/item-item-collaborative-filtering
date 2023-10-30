@@ -9,6 +9,9 @@ import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+/**
+ * Элемент системы совместной фильтрации
+ */
 @Entity
 @Table(name = "item")
 @AllArgsConstructor

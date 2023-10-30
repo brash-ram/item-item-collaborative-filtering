@@ -9,6 +9,9 @@ import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+/**
+ * Пользователь системы совместной фильтрации
+ */
 @Entity
 @Table(name = "user_info")
 @AllArgsConstructor
