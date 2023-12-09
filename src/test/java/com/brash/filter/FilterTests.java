@@ -8,6 +8,7 @@ import com.brash.data.entity.User;
 import com.brash.data.jpa.ItemRepository;
 import com.brash.data.jpa.MarkRepository;
 import com.brash.data.jpa.UserRepository;
+import com.brash.filter.data.SimilarItems;
 import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +88,7 @@ public class FilterTests {
     public void itemItemSimilarityCalculateTest() {
         saveData();
         List<Item> items = itemRepository.findAll();
-        List<PartSimilarItems> part = itemToItemSimilarity.updateSimilarity(items);
+        List<SimilarItems> part = itemToItemSimilarity.updateSimilarity(items);
 
         assertEquals(3, part.size());
 

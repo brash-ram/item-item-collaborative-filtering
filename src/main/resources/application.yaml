@@ -3,7 +3,7 @@
 #    exchange: scrapper-exchange
 
 similarity:
-    update-factor: 0.1
+    smoothing-factor: 0.1
 
 server:
     port: 8080

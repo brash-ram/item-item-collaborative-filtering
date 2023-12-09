@@ -9,7 +9,7 @@ import com.brash.data.jpa.UserRepository;
 import com.brash.filter.Filter;
 import com.brash.filter.ItemToItemRecommendation;
 import com.brash.filter.ItemToItemSimilarity;
-import com.brash.filter.PartSimilarItems;
+import com.brash.filter.data.SimilarItems;
 import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class FilterImpl implements Filter {
+public class FilterModel implements Filter {
 
     private final ItemToItemSimilarity itemToItemSimilarity;
     private final ItemToItemRecommendation itemToItemRecommendation;
@@ -42,7 +42,7 @@ public class FilterImpl implements Filter {
     public void updateRecommendations() {
         List<Item> items = itemRepository.findAll();
         List<User> users = userRepository.findAll();
-        List<PartSimilarItems> parts = itemToItemSimilarity.updateSimilarity(items);
+        List<SimilarItems> parts = itemToItemSimilarity.updateSimilarity(items);
         Map<User, Set<Item>> mapForMarks = getUserAndItemForRecommendationMark(new HashSet<>(items), users);
         List<Mark> generatedMarks = itemToItemRecommendation.generateAllRecommendation(parts, mapForMarks);
         markRepository.saveAll(generatedMarks);

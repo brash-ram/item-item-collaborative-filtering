@@ -1,7 +1,7 @@
 package com.brash.util;
 
 import com.brash.data.entity.Item;
-import com.brash.filter.PartSimilarItems;
+import com.brash.filter.data.SimilarItems;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -18,9 +18,9 @@ public class ItemUtilsTests {
                 new Item(3L, 3L, null),
                 new Item(4L, 4L, null)
         );
-        List<PartSimilarItems> parts = ItemUtils.generatePairItems(items);
+        List<SimilarItems> parts = ItemUtils.generatePairItems(items);
 
-        for (PartSimilarItems part : parts) {
+        for (SimilarItems part : parts) {
             System.out.println(part.items.get(0).getId()+ " " + part.items.get(1).getId());
         }
         assertEquals(6, parts.size());

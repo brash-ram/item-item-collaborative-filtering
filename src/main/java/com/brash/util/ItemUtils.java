@@ -1,7 +1,8 @@
 package com.brash.util;
 
 import com.brash.data.entity.Item;
-import com.brash.filter.PartSimilarItems;
+import com.brash.filter.data.FuzzySet;
+import com.brash.filter.data.SimilarItems;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,20 +15,16 @@ public class ItemUtils {
     /**
      * Генерация пар элементов из данного списка items.
      * Отсутствуют пары одинаковых элементов и перестановки в парах.
-     * @param items Список элементов, для которого нужно сгенерировать пары элементов
+     * @param fuzzySets Список элементов, для которого нужно сгенерировать пары элементов
      * @return Пары сходства элементов
      */
-    public static List<PartSimilarItems> generatePairItems(List<Item> items) {
-        List<PartSimilarItems> partSimilarItems = new ArrayList<>();
-        for (int i = 0; i < items.size(); i++) {
-            Item item = items.get(i);
-            for (int n = i + 1; n < items.size(); n++) {
-                List<Item> part = new ArrayList<>();
-                part.add(item);
-                part.add(items.get(n));
-                partSimilarItems.add(new PartSimilarItems(part, null));
+    public static List<SimilarItems> generatePairItems(List<FuzzySet> fuzzySets) {
+        List<SimilarItems> similarItems = new ArrayList<>();
+        for (int i = 0; i < fuzzySets.size(); i++) {
+            for (int n = i + 1; n < fuzzySets.size(); n++) {
+                similarItems.add(new SimilarItems().setFuzzySet1(fuzzySets.get(i)).setFuzzySet2(fuzzySets.get(n)));
             }
         }
-        return partSimilarItems;
+        return similarItems;
     }
 }

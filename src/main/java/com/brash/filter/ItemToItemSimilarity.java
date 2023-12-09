@@ -1,11 +1,13 @@
 package com.brash.filter;
 
 import com.brash.data.entity.Item;
+import com.brash.data.entity.Mark;
+import com.brash.filter.data.SimilarItems;
 
 import java.util.List;
 
 /**
- * Интерфейс, описывающий создание пар сходства
+ * Интерфейс, описывающий создание пар сходства элементов
  */
 public interface ItemToItemSimilarity {
 
@@ -14,5 +16,5 @@ public interface ItemToItemSimilarity {
      * @param items элементы для составления пар
      * @return Пары сходства со значением их сходства
      */
-    List<PartSimilarItems> updateSimilarity(List<Item> items);
+    List<SimilarItems> updateSimilarity(List<Item> items);
 }
