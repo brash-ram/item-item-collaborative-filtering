@@ -20,7 +20,7 @@ import java.util.TreeSet;
 @Setter
 @Accessors(chain = true)
 @ToString
-public class Item implements Comparable<Item> {
+public class Item implements Comparable<Item>, HavingMarks {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "Item_SEQ")
     @SequenceGenerator(name = "Item_SEQ")

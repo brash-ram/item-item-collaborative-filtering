@@ -1,5 +1,6 @@
 package com.brash.filter;
 
+import com.brash.data.entity.HavingMarks;
 import com.brash.data.entity.Item;
 import com.brash.data.entity.Mark;
 import com.brash.filter.data.SimilarItems;
@@ -16,5 +17,5 @@ public interface ItemToItemSimilarity {
      * @param items элементы для составления пар
      * @return Пары сходства со значением их сходства
      */
-    List<SimilarItems> updateSimilarity(List<Item> items);
+    List<SimilarItems> updateSimilarity(List<HavingMarks> items);
 }

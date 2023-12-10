@@ -2,12 +2,11 @@ package com.brash.filter;
 
 import com.brash.data.entity.Item;
 import com.brash.data.entity.Mark;
-import com.brash.data.entity.User;
-import com.brash.filter.data.SimilarItems;
+import com.brash.filter.data.ItemNeighbours;
+import com.brash.filter.data.UserNeighbours;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Интерфейс, описывающий генерацию оценок рекомендаций
@@ -19,7 +18,8 @@ public interface ItemToItemRecommendation {
      * с помощью пар сходства элементов (partSimilarItems)
      */
     List<Mark> generateAllRecommendation(
-            List<SimilarItems> similarItems,
-            Map<User, Set<Item>> mapUserAndItemsForMarks
+            ItemNeighbours itemNeighbours,
+            UserNeighbours userNeighbours,
+            Map<Item, List<Mark>> generatingMarks
     );
 }

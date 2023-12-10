@@ -20,7 +20,7 @@ import java.util.TreeSet;
 @Setter
 @Accessors(chain = true)
 @ToString
-public class User {
+public class User implements HavingMarks {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "User_SEQ")
     @SequenceGenerator(name = "User_SEQ")

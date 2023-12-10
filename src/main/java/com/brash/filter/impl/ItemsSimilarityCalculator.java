@@ -1,5 +1,6 @@
 package com.brash.filter.impl;
 
+import com.brash.data.entity.HavingMarks;
 import com.brash.data.entity.Item;
 import com.brash.data.entity.Mark;
 import com.brash.data.entity.User;
@@ -17,6 +18,7 @@ import java.util.stream.IntStream;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
+import static com.brash.util.Utils.*;
 
 /**
  * Реализация интерфейса, описывающего создание пар сходства
@@ -36,7 +38,7 @@ public class ItemsSimilarityCalculator implements ItemToItemSimilarity {
     private static final double ZERO = 0.000000001;
 
     @Override
-    public List<SimilarItems> updateSimilarity(List<Item> allItems) {
+    public List<SimilarItems> updateSimilarity(List<HavingMarks> allItems) {
         List<FuzzySet> fuzzySets = getFuzzySets(allItems);
         calculatePreference(fuzzySets);
         List<SimilarItems> similarItems = ItemUtils.generatePairItems(fuzzySets);
@@ -128,9 +130,9 @@ public class ItemsSimilarityCalculator implements ItemToItemSimilarity {
         }
     }
 
-    private List<FuzzySet> getFuzzySets(List<Item> items) {
+    private List<FuzzySet> getFuzzySets(List<HavingMarks> items) {
         List<FuzzySet> fuzzySet = new ArrayList<>();
-        for (Item item : items) {
+        for (HavingMarks item : items) {
             List<Mark> notGeneratedMarks = item.getMarks().stream()
                     .filter(mark1 -> !mark1.getIsGenerated())
                     .toList();
@@ -149,14 +151,6 @@ public class ItemsSimilarityCalculator implements ItemToItemSimilarity {
             fuzzySet.add(new FuzzySet().setSet(fuzzySetItems));
         }
         return fuzzySet;
-    }
-
-    private double getAverageMark(List<Mark> markForSameItem) {
-        double top = 0;
-        for (Mark mark : markForSameItem) {
-            top += mark.getMark();
-        }
-        return top / markForSameItem.size();
     }
 //
 //    /**
