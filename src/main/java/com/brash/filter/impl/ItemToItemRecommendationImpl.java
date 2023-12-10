@@ -98,6 +98,8 @@ public class ItemToItemRecommendationImpl implements ItemToItemRecommendation {
                     generatedMarkForCurrentItem,
                     new Mark().setItem(part.getOtherItem(currentItem)),
                     Comparator.comparingLong(mark1 -> mark1.getItem().getId()));
+            if (foundMarkIndex < 0)
+                continue;
             Mark foundMark = generatedMarkForCurrentItem.get(foundMarkIndex);
             top += foundMark.getMark() * part.similarValue;
             bottom += part.similarValue;
