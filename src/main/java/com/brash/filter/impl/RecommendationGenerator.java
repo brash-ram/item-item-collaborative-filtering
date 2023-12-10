@@ -30,6 +30,10 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
             Item currentItem = entry.getKey();
             List<SimpleSimilarItems> neighbours = entry.getValue();
             List<Mark> marksForGeneratingWithItem = generatingMarks.get(currentItem);
+
+            if (marksForGeneratingWithItem == null)
+                continue;
+
             for (Mark mark : marksForGeneratingWithItem) {
                 User currentUser = mark.getUser();
                 List<SimpleSimilarItems> neighboursWithMark = neighbours.stream()
@@ -41,7 +45,7 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                                 )
                         .toList();
                 try {
-                    if (neighbours.size() - 1 == neighboursWithMark.size()) {
+                    if (neighbours.size() == neighboursWithMark.size()) {
                         generatedMarks.add(generateMarkOnMeanCentering(mark, neighbours));
                     } else if (neighboursWithMark.size() == 0) {
                         generatedMarks.add(generateMarkOnVagueSet(mark, neighbours, userNeighbours));

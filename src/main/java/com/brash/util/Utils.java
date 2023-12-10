@@ -1,14 +1,12 @@
 package com.brash.util;
 
+import com.brash.data.entity.HavingMarks;
 import com.brash.data.entity.Item;
 import com.brash.data.entity.Mark;
 import com.brash.data.entity.User;
 import com.brash.filter.data.*;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class Utils {
     public static Item getItemFromFuzzySet(FuzzySet fuzzySet) {
@@ -86,6 +84,17 @@ public class Utils {
             top += mark.getMark();
         }
         return top / markForSameItem.size();
+    }
+
+    public static double getAverageMarkFromUserOrItem(Mark mark, HavingMarks type) {
+        List<Mark> marks;
+        if (type instanceof Item) {
+            marks = new ArrayList<>(mark.getUser().getMarks());
+        } else {
+            marks = new ArrayList<>(mark.getItem().getMarks());
+        }
+
+        return getAverageMark(marks);
     }
 
     private static List<SimpleSimilarUsers> getSortedListSimilarUsers(List<SimpleSimilarUsers> neighbours) {

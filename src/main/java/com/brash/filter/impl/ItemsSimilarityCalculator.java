@@ -136,9 +136,9 @@ public class ItemsSimilarityCalculator implements ItemToItemSimilarity {
             List<Mark> notGeneratedMarks = item.getMarks().stream()
                     .filter(mark1 -> !mark1.getIsGenerated())
                     .toList();
-            double averageMark = getAverageMark(notGeneratedMarks);
             List<FuzzySetItem> fuzzySetItems = new ArrayList<>();
             for (Mark mark : notGeneratedMarks) {
+                double averageMark = getAverageMarkFromUserOrItem(mark, item);
                 FuzzySetItem fuzzySetItem = new FuzzySetItem(
                         mark,
                         mark.getMark() > averageMark ? 1 : 0

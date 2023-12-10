@@ -51,6 +51,7 @@ public class FilterModel implements Filter {
         UserNeighbours userNeighbours = generateUserSimilarity(users);
 
         Map<Item, List<Mark>> mapForMarks = getUserAndItemForRecommendationMark(new HashSet<>(items), users);
+        System.out.println("Начинается генерация рекомендаций");
         List<Mark> generatedMarks = itemToItemRecommendation.generateAllRecommendation(itemNeighbours, userNeighbours, mapForMarks);
         markRepository.saveAll(generatedMarks);
     }
@@ -85,7 +86,7 @@ public class FilterModel implements Filter {
             userNeighbours.neighbours().put(user, neighbours);
         }
 
-        User user = similarUsers.get(similarUsers.size() - 1).user1();
+        User user = similarUsers.get(similarUsers.size() - 1).user2();
         List<SimpleSimilarUsers> neighbours = new ArrayList<>();
         for (SimpleSimilarUsers similarUser : similarUsers) {
             User similarUser1 = similarUser.user1();
@@ -179,13 +180,13 @@ public class FilterModel implements Filter {
                 userItemsWithGeneratedMark.addAll(itemsWithoutUserMark);
                 for (Item item : userItemsWithGeneratedMark) {
                     if (generatingMarksForItem.containsKey(item)) {
-                        generatingMarksForItem.get(item).add(new Mark().setItem(item).setUser(user));
+                        generatingMarksForItem.get(item).add(new Mark().setItem(item).setUser(user).setIsGenerated(true));
                     } else {
-                        generatingMarksForItem.put(item, List.of(new Mark().setItem(item).setUser(user)));
+                        generatingMarksForItem.put(item, new ArrayList<>(List.of(new Mark().setItem(item).setUser(user).setIsGenerated(true))));
                     }
                 }
             } catch (Exception e) {
-                log.error(e.getMessage());
+                log.error(Arrays.toString(e.getStackTrace()));
             }
 
         }

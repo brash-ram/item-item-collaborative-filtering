@@ -20,8 +20,8 @@ spring:
                     fetch_size: 50
                 order_updates: true
                 order_insert: true
-        open-in-view: true
-        show-sql: true
+        open-in-view: false
+        show-sql: false
         hibernate:
             ddl-auto: create
     datasource:

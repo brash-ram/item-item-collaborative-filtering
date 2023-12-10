@@ -44,6 +44,11 @@ public class Item implements Comparable<Item>, HavingMarks {
     }
 
     @Override
+    public SortedSet<Mark> getMarks() {
+        return marks;
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(id);
     }

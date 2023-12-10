@@ -1,8 +1,8 @@
 package com.brash.data.entity;
 
-import java.util.List;
+import java.util.SortedSet;
 
 public interface HavingMarks {
 
-    List<Mark> getMarks();
+    SortedSet<Mark> getMarks();
 }

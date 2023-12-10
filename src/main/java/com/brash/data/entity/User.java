@@ -42,6 +42,10 @@ public class User implements HavingMarks {
         return id != null && Objects.equals(id, user.id);
     }
 
+    @Override
+    public SortedSet<Mark> getMarks() {
+        return marks;
+    }
 
     @Override
     public int hashCode() {

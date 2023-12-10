@@ -18,6 +18,6 @@ public class ApplicationConfiguration {
      */
     @Bean
     public ExecutorService executorService() {
-        return Executors.newFixedThreadPool(3);
+        return Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 }
