@@ -31,7 +31,7 @@ public class Item implements Comparable<Item>, HavingMarks {
     private Long originalId;
 
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "item")
     @ToString.Exclude
     private SortedSet<Mark> marks = new TreeSet<>();
 

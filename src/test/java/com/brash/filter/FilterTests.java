@@ -86,7 +86,7 @@ public class FilterTests {
     @Transactional
     @Rollback
     @Order(1)
-    public void itemItemSimilarityCalculateTest() {
+    public void itemItemSimilarityCalculateTest() throws InterruptedException {
         saveData();
         List<Item> items = itemRepository.findAll();
         List<User> users = userRepository.findAll();

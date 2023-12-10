@@ -18,6 +18,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -29,7 +33,7 @@ import static com.brash.util.Utils.*;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class FilterModel implements Filter {
+public class FilterModel implements Filter, AutoCloseable {
 
     private final ItemToItemSimilarity itemToItemSimilarity;
     private final ItemToItemRecommendation itemToItemRecommendation;
@@ -37,6 +41,8 @@ public class FilterModel implements Filter {
     private final ItemRepository itemRepository;
     private final MarkRepository markRepository;
     private final UserRepository userRepository;
+
+    private final ExecutorService executorService;
 
     /**
      * Запуск обновления старых и генерации новых оценок рекомендации
@@ -47,8 +53,18 @@ public class FilterModel implements Filter {
         List<Item> items = itemRepository.findAll();
         List<User> users = userRepository.findAll();
 
-        ItemNeighbours itemNeighbours = generateItemSimilarity(items);
-        UserNeighbours userNeighbours = generateUserSimilarity(users);
+        Future<ItemNeighbours> itemNeighboursFuture = executorService.submit(() -> generateItemSimilarity(items));
+        Future<UserNeighbours> userNeighboursFuture = executorService.submit(() -> generateUserSimilarity(users));
+
+        ItemNeighbours itemNeighbours;
+        UserNeighbours userNeighbours;
+        try {
+            itemNeighbours = itemNeighboursFuture.get();
+            userNeighbours = userNeighboursFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return;
+        }
 
         Map<Item, List<Mark>> mapForMarks = getUserAndItemForRecommendationMark(new HashSet<>(items), users);
         System.out.println("Начинается генерация рекомендаций");
@@ -56,14 +72,19 @@ public class FilterModel implements Filter {
         markRepository.saveAll(generatedMarks);
     }
 
-    private ItemNeighbours generateItemSimilarity(List<Item> items) {
+    @Override
+    public void close() {
+        executorService.shutdownNow();
+    }
+
+    private ItemNeighbours generateItemSimilarity(List<Item> items) throws InterruptedException {
         List<HavingMarks> havingMarksItems = items.stream().map(item -> (HavingMarks)item).toList();
         List<SimilarItems> partsItem = itemToItemSimilarity.updateSimilarity(havingMarksItems);
         List<SimpleSimilarItems> similarItems = simplifySimilarItems(partsItem);
         return generateItemNeighbours(similarItems);
     }
 
-    private UserNeighbours generateUserSimilarity(List<User> users) {
+    private UserNeighbours generateUserSimilarity(List<User> users) throws InterruptedException {
         List<HavingMarks> havingMarksUsers = users.stream().map(item -> (HavingMarks)item).toList();
         List<SimilarItems> partsUser = itemToItemSimilarity.updateSimilarity(havingMarksUsers);
         List<SimpleSimilarUsers> similarUsers = simplifySimilarUsers(partsUser);
@@ -75,6 +96,8 @@ public class FilterModel implements Filter {
 
         for (int i = 0; i < similarUsers.size(); i++) {
             User user = similarUsers.get(i).user1();
+            if (userNeighbours.neighbours().containsKey(user))
+                continue;
             List<SimpleSimilarUsers> neighbours = new ArrayList<>();
             for (SimpleSimilarUsers similarUser : similarUsers) {
                 User similarUser1 = similarUser.user1();
@@ -105,6 +128,8 @@ public class FilterModel implements Filter {
 
         for (int i = 0; i < similarItems.size(); i++) {
             Item item = similarItems.get(i).item1();
+            if (itemNeighbours.neighbours().containsKey(item))
+                continue;
             List<SimpleSimilarItems> neighbours = new ArrayList<>();
             for (SimpleSimilarItems similarItem : similarItems) {
                 Item similarItem1 = similarItem.item1();

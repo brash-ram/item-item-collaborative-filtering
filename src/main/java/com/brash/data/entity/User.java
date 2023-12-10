@@ -30,7 +30,7 @@ public class User implements HavingMarks {
     @Column(name = "original_id", nullable = false)
     private Long originalId;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     @ToString.Exclude
     private SortedSet<Mark> marks = new TreeSet<>();
 

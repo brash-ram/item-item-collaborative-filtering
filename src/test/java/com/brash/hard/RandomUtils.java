@@ -15,7 +15,7 @@ public class RandomUtils {
 
     public Item getRandomUniqueItem(List<Item> items, List<Item> markedItems) {
         while (true) {
-            int index = getRandomInt(0, items.size() - 1);
+            int index = getRandomInt(0, items.size());
             Item item = items.get(index);
             if (!markedItems.contains(item))
                 return item;

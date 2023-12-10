@@ -5,6 +5,7 @@ import com.brash.data.entity.Mark;
 import com.brash.data.entity.User;
 import com.brash.filter.ItemToItemRecommendation;
 import com.brash.filter.data.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -14,10 +15,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class RecommendationGenerator implements ItemToItemRecommendation {
+
+    private final ExecutorService executorService;
+
+    private final Object lock = new Object();
+
+    private List<Mark> generatedMarks;
 
     @Override
     public List<Mark> generateAllRecommendation(
@@ -25,7 +35,17 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
             UserNeighbours userNeighbours,
             Map<Item, List<Mark>> generatingMarks
     ) {
-        List<Mark> generatedMarks = new ArrayList<>();
+        generatedMarks = new ArrayList<>();
+
+        int numberLatch = 0;
+        for (Map.Entry<Item, List<SimpleSimilarItems>> entry : itemNeighbours.neighbours().entrySet()) {
+            Item currentItem = entry.getKey();
+            List<Mark> marksForGeneratingWithItem = generatingMarks.get(currentItem);
+            numberLatch += marksForGeneratingWithItem.size();
+        }
+
+        CountDownLatch latch = new CountDownLatch(numberLatch);
+
         for (Map.Entry<Item, List<SimpleSimilarItems>> entry : itemNeighbours.neighbours().entrySet()) {
             Item currentItem = entry.getKey();
             List<SimpleSimilarItems> neighbours = entry.getValue();
@@ -44,31 +64,58 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                                             .contains(currentUser)
                                 )
                         .toList();
-                try {
-                    if (neighbours.size() == neighboursWithMark.size()) {
-                        generatedMarks.add(generateMarkOnMeanCentering(mark, neighbours));
-                    } else if (neighboursWithMark.size() == 0) {
-                        generatedMarks.add(generateMarkOnVagueSet(mark, neighbours, userNeighbours));
-                    } else {
-                        List<SimpleSimilarItems> neighboursWithoutMark = neighbours.stream()
-                                .filter(item ->
-                                        !getOtherItem(item, currentItem).getMarks().stream()
-                                                .map(Mark::getUser)
-                                                .toList()
-                                                .contains(currentUser)
-                                )
-                                .toList();
-                        generatedMarks.add(generateMarkOnSparseData(mark, neighboursWithMark, neighboursWithoutMark, userNeighbours));
-                    }
-                } catch (Exception e) {
-                    log.error(e.getMessage());
+                if (neighbours.size() == neighboursWithMark.size()) {
+                    executorService.execute(() -> {
+                        try {
+                            generateMarkOnMeanCentering(mark, neighbours);
+                        } catch (Exception e) {
+//                            log.error(Arrays.toString(e.getStackTrace()));
+                            e.printStackTrace();
+                        }
+                        latch.countDown();
+                    });
+//                        generateMarkOnMeanCentering(mark, neighbours);
+                } else if (neighboursWithMark.size() == 0) {
+                    executorService.execute(() -> {
+                        try {
+                            generateMarkOnVagueSet(mark, neighbours, userNeighbours);
+                        } catch (Exception e) {
+//                            log.error(Arrays.toString(e.getStackTrace()));
+                            e.printStackTrace();
+                        }
+                        latch.countDown();
+                    });
+//                    generateMarkOnVagueSet(mark, neighbours, userNeighbours);
+                } else {
+                    List<SimpleSimilarItems> neighboursWithoutMark = neighbours.stream()
+                            .filter(item ->
+                                    !getOtherItem(item, currentItem).getMarks().stream()
+                                            .map(Mark::getUser)
+                                            .toList()
+                                            .contains(currentUser)
+                            )
+                            .toList();
+                    executorService.execute(() -> {
+                        try {
+                            generateMarkOnSparseData(mark, neighboursWithMark, neighboursWithoutMark, userNeighbours);
+                        } catch (Exception e) {
+//                            log.error(Arrays.toString(e.getStackTrace()));
+                            e.printStackTrace();
+                        }
+                        latch.countDown();
+                    });
+//                    generateMarkOnSparseData(mark, neighboursWithMark, neighboursWithoutMark, userNeighbours);
                 }
             }
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException ignored) {
         }
         return generatedMarks;
     }
 
-    private Mark generateMarkOnSparseData(
+    private void generateMarkOnSparseData(
             Mark mark,
             List<SimpleSimilarItems> neighboursWithMark,
             List<SimpleSimilarItems> neighboursWithoutMark,
@@ -80,6 +127,9 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
         double top = 0.0;
         double bottom = 0.0;
         for (SimpleSimilarItems item : neighboursWithMark) {
+            if (Thread.currentThread().isInterrupted()) {
+                return;
+            }
             Mark neighboringMark = getMarkFromUser(new ArrayList<>(getOtherItem(item, currentItem).getMarks()), currentUser);
 
             double averageMarkValueNeighboringItem = getAverageMark(new ArrayList<>(neighboringMark.getItem().getMarks()));
@@ -89,6 +139,9 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
         }
 
         for (SimpleSimilarItems item : neighboursWithoutMark) {
+            if (Thread.currentThread().isInterrupted()) {
+                return;
+            }
             Mark neighboringMark;
             try {
                 neighboringMark = getMarkFromSimilarUser(
@@ -97,7 +150,8 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                         currentUser
                 );
             } catch (Exception e) {
-                log.error(e.getMessage());
+//                log.error(e.getMessage());
+                e.printStackTrace();
                 continue;
             }
 
@@ -111,18 +165,24 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
 
         if (top == 0.0 || bottom == 0.0)
             throw new Exception("Failed to calculate rating for item " + currentItem.getId() + " and user " + currentUser.getId());
-
         mark.setMark(averageMarkValueCurrentItem + (top / bottom));
-        return mark;
+        synchronized (lock) {
+            generatedMarks.add(mark);
+        }
+
+//        return mark;
     }
 
-    private Mark generateMarkOnVagueSet(Mark mark, List<SimpleSimilarItems> neighbours, UserNeighbours similarUsers) throws Exception {
+    private void generateMarkOnVagueSet(Mark mark, List<SimpleSimilarItems> neighbours, UserNeighbours similarUsers) throws Exception {
         Item currentItem = mark.getItem();
         User currentUser = mark.getUser();
         double averageMarkValueCurrentItem = getAverageMark(new ArrayList<>(currentItem.getMarks()));
         double top = 0.0;
         double bottom = 0.0;
         for (SimpleSimilarItems item : neighbours) {
+            if (Thread.currentThread().isInterrupted()) {
+                return;
+            }
             Mark neighboringMark;
             try {
                 neighboringMark = getMarkFromSimilarUser(
@@ -131,7 +191,8 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                         currentUser
                 );
             } catch (Exception e) {
-                log.error(e.getMessage());
+//                log.error(e.getMessage());
+                e.printStackTrace();
                 continue;
             }
 
@@ -146,16 +207,23 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
             throw new Exception("Failed to calculate rating for item " + currentItem.getId() + " and user " + currentUser.getId());
 
         mark.setMark(averageMarkValueCurrentItem + (top / bottom));
-        return mark;
+        synchronized (lock) {
+            generatedMarks.add(mark);
+        }
+
+//        return mark;
     }
 
-    private Mark generateMarkOnMeanCentering(Mark mark, List<SimpleSimilarItems> neighbours) throws Exception {
+    private void generateMarkOnMeanCentering(Mark mark, List<SimpleSimilarItems> neighbours) throws Exception {
         Item currentItem = mark.getItem();
         User currentUser = mark.getUser();
         double averageMarkValueCurrentItem = getAverageMark(new ArrayList<>(currentItem.getMarks()));
         double top = 0.0;
         double bottom = 0.0;
         for (SimpleSimilarItems item : neighbours) {
+            if (Thread.currentThread().isInterrupted()) {
+                return;
+            }
             Mark neighboringMark = getMarkFromUser(new ArrayList<>(getOtherItem(item, currentItem).getMarks()), currentUser);
             double averageMarkValueNeighboringItem = getAverageMark(new ArrayList<>(neighboringMark.getItem().getMarks()));
             top += item.similarValue() * (neighboringMark.getMark() - averageMarkValueNeighboringItem);
@@ -165,6 +233,10 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
             throw new Exception("Failed to calculate rating for item " + currentItem.getId() + " and user " + currentUser.getId());
 
         mark.setMark(averageMarkValueCurrentItem + (top / bottom));
-        return mark;
+        synchronized (lock) {
+            generatedMarks.add(mark);
+        }
+
+//        return mark;
     }
 }

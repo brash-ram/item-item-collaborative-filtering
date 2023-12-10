@@ -9,6 +9,9 @@ import com.brash.filter.data.*;
 import java.util.*;
 
 public class Utils {
+
+    private static final Object sortLock = new Object();
+
     public static Item getItemFromFuzzySet(FuzzySet fuzzySet) {
         return fuzzySet.getSet().get(0).mark().getItem();
     }
@@ -26,7 +29,7 @@ public class Utils {
     }
 
     public static SimpleSimilarUsers getSimilarUser(UserNeighbours userNeighbours, User user) throws Exception {
-        if (!userNeighbours.neighbours().containsKey(user))
+        if (!userNeighbours.neighbours().containsKey(user) || userNeighbours.neighbours().get(user).isEmpty())
             throw new Exception("User " + user.getId() + " dont have neighbours");
 
         List<SimpleSimilarUsers> neighbours = getSortedListSimilarUsers(userNeighbours.neighbours().get(user));
@@ -45,7 +48,7 @@ public class Utils {
     }
 
     public static Mark getMarkFromSimilarUser(List<Mark> marks, UserNeighbours userNeighbours, User user) throws Exception {
-        if (!userNeighbours.neighbours().containsKey(user))
+        if (!userNeighbours.neighbours().containsKey(user) || userNeighbours.neighbours().get(user).isEmpty())
             throw new Exception("User " + user.getId() + " dont have neighbours");
 
         List<SimpleSimilarUsers> neighbours = getSortedListSimilarUsers(userNeighbours.neighbours().get(user));
@@ -54,7 +57,7 @@ public class Utils {
             try {
                 return getMarkFromUser(marks, getOtherUser(neighbours.get(i), user));
             } catch (Exception ignored) {
-
+//                ignored.printStackTrace();
             }
         }
         throw new Exception("No similar user with mark for item");
@@ -98,7 +101,9 @@ public class Utils {
     }
 
     private static List<SimpleSimilarUsers> getSortedListSimilarUsers(List<SimpleSimilarUsers> neighbours) {
-        neighbours.sort(Comparator.comparingDouble(SimpleSimilarUsers::similarValue));
+        synchronized (sortLock) {
+            neighbours.sort(Comparator.comparingDouble(SimpleSimilarUsers::similarValue));
+        }
         return neighbours;
     }
 }

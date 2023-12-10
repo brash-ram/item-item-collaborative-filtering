@@ -15,6 +15,10 @@ public interface MarkRepository extends JpaRepository<Mark, Long> {
 
     List<Mark> findAllByIsGenerated(boolean isGenerated);
 
+    List<Mark> findAllByMarkLessThan(double value);
+
+    int countAllByIsGenerated(boolean isGenerated);
+
     Optional<Mark> findByUserEqualsAndItemEquals(User user, Item item);
 
 //    @Query("SELECT m from Mark m where m.isGenerated = true and m.mark >= max(m.mark)")

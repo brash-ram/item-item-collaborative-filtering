@@ -38,15 +38,18 @@ public class ItemsSimilarityCalculator implements ItemToItemSimilarity {
     private static final double ZERO = 0.000000001;
 
     @Override
-    public List<SimilarItems> updateSimilarity(List<HavingMarks> allItems) {
+    public List<SimilarItems> updateSimilarity(List<HavingMarks> allItems) throws InterruptedException {
         List<FuzzySet> fuzzySets = getFuzzySets(allItems);
         calculatePreference(fuzzySets);
         List<SimilarItems> similarItems = ItemUtils.generatePairItems(fuzzySets);
         return generateSimilarity(similarItems);
     }
 
-    private List<SimilarItems> generateSimilarity(List<SimilarItems> similarItems) {
+    private List<SimilarItems> generateSimilarity(List<SimilarItems> similarItems) throws InterruptedException {
         for (SimilarItems similarItem : similarItems) {
+            if (Thread.currentThread().isInterrupted()) {
+                throw new InterruptedException("Thread with generating similarity" + Thread.currentThread().getName() + "is interrupted");
+            }
             double a = (double) similarItem.fuzzySet1.getSet().size() /
                     (similarItem.fuzzySet1.getSet().size() + similarItem.fuzzySet2.getSet().size());
             double divergenceKL = calculateDivergenceKL(

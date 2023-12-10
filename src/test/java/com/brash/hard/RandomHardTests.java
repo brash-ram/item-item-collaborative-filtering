@@ -93,16 +93,14 @@ public class RandomHardTests {
         TestTransaction.flagForCommit();
         TestTransaction.end();
 
-        List<Mark> marks = markRepository.findAllByIsGenerated(true);
-        int numberMarkWithZero = 0;
-        for (Mark mark : marks) {
-            if (mark.getMark() < 0.001) {
-                numberMarkWithZero++;
-            }
-        }
-        System.out.println("Количество сгенерированных оценок: " + marks.size());
+        int numberGeneratedMarks = markRepository.countAllByIsGenerated(true);
+        List<Mark> zeroMarks = markRepository.findAllByMarkLessThan(0.001);
+
         System.out.println("Размер матрицы оценок: " + NUMBER_USERS * NUMBER_ITEMS);
-        System.out.println("Алгоритм заполнил матрицу на : " + ((double) marks.size() / (NUMBER_USERS * NUMBER_ITEMS - numberUserMark)  * 100.0) + "%");
-        System.out.println("Количество нулевых оценок: " + numberMarkWithZero);
+        System.out.println("Количество сгенерированных оценок: " + numberGeneratedMarks);
+        System.out.println("Матрица оценок заполнена пользователями на " + (numberUserMark / (NUMBER_USERS * NUMBER_ITEMS)  * 100.0) + "%");
+        System.out.println("Алгоритм сгенерировал оценок на " + ((double) numberGeneratedMarks / (NUMBER_USERS * NUMBER_ITEMS - numberUserMark)  * 100.0) + "%");
+        System.out.println("Матрица заполнена на " + ((double) (numberGeneratedMarks + numberUserMark) / (NUMBER_USERS * NUMBER_ITEMS)  * 100.0) + "%");
+        System.out.println("Количество нулевых оценок: " + zeroMarks.size());
     }
 }
