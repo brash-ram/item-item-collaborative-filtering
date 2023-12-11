@@ -75,7 +75,6 @@ public class RandomHardTests {
         TestTransaction.flagForCommit();
         TestTransaction.end();
         TestTransaction.start();
-        System.out.println("Поставлено оценок - " + numberUserMark);
     }
 
     @Test
@@ -97,9 +96,10 @@ public class RandomHardTests {
         List<Mark> zeroMarks = markRepository.findAllByMarkLessThan(0.001);
 
         System.out.println("Размер матрицы оценок: " + NUMBER_USERS * NUMBER_ITEMS);
+        System.out.println("Поставлено оценок - " + numberUserMark);
+        System.out.println("Матрица оценок заполнена пользователями на " + ((double) numberUserMark / (NUMBER_USERS * NUMBER_ITEMS)  * 100.0) + "%");
         System.out.println("Количество сгенерированных оценок: " + numberGeneratedMarks);
-        System.out.println("Матрица оценок заполнена пользователями на " + (numberUserMark / (NUMBER_USERS * NUMBER_ITEMS)  * 100.0) + "%");
-        System.out.println("Алгоритм сгенерировал оценок на " + ((double) numberGeneratedMarks / (NUMBER_USERS * NUMBER_ITEMS - numberUserMark)  * 100.0) + "%");
+        System.out.println("Матрица оценок заполнена алгоритмом на " + ((double) numberGeneratedMarks / (NUMBER_USERS * NUMBER_ITEMS - numberUserMark)  * 100.0) + "%");
         System.out.println("Матрица заполнена на " + ((double) (numberGeneratedMarks + numberUserMark) / (NUMBER_USERS * NUMBER_ITEMS)  * 100.0) + "%");
         System.out.println("Количество нулевых оценок: " + zeroMarks.size());
     }
