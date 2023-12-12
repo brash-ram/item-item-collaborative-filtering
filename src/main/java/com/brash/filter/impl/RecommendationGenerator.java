@@ -4,19 +4,21 @@ import com.brash.data.entity.Item;
 import com.brash.data.entity.Mark;
 import com.brash.data.entity.User;
 import com.brash.filter.ItemToItemRecommendation;
-import com.brash.filter.data.*;
+import com.brash.filter.data.ItemNeighbours;
+import com.brash.filter.data.SimpleSimilarItems;
+import com.brash.filter.data.SimpleSimilarUsers;
+import com.brash.filter.data.UserNeighbours;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import static com.brash.util.Utils.*;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+
+import static com.brash.util.Utils.*;
 
 @Slf4j
 @Component

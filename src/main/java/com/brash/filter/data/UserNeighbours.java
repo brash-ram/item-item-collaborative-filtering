@@ -1,6 +1,5 @@
 package com.brash.filter.data;
 
-import com.brash.data.entity.Item;
 import com.brash.data.entity.User;
 
 import java.util.List;

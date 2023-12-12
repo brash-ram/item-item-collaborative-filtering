@@ -21,11 +21,10 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-
-import static com.brash.util.Utils.*;
+import static com.brash.util.Utils.getItemFromFuzzySet;
+import static com.brash.util.Utils.getUserFromFuzzySet;
 
 /**
  * Реализация интерфейса, описывающего запуск алгоритма совместной фильтрации

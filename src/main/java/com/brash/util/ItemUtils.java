@@ -1,6 +1,5 @@
 package com.brash.util;
 
-import com.brash.data.entity.Item;
 import com.brash.filter.data.FuzzySet;
 import com.brash.filter.data.SimilarItems;
 

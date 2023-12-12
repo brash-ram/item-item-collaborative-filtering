@@ -1,13 +1,10 @@
 package com.brash.filter.data;
 
-import com.brash.data.entity.Item;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 /**
  * Пара схожих элементов и их оценка схожести

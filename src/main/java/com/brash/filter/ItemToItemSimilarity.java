@@ -1,8 +1,6 @@
 package com.brash.filter;
 
 import com.brash.data.entity.HavingMarks;
-import com.brash.data.entity.Item;
-import com.brash.data.entity.Mark;
 import com.brash.filter.data.SimilarItems;
 
 import java.util.List;

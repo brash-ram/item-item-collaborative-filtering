@@ -1,6 +1,5 @@
 package com.brash.filter.data;
 
-import com.brash.data.entity.Item;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

@@ -1,9 +1,7 @@
 package com.brash.filter.impl;
 
 import com.brash.data.entity.HavingMarks;
-import com.brash.data.entity.Item;
 import com.brash.data.entity.Mark;
-import com.brash.data.entity.User;
 import com.brash.filter.ItemToItemSimilarity;
 import com.brash.filter.data.*;
 import com.brash.util.ItemUtils;
@@ -11,14 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BinaryOperator;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
-import static com.brash.util.Utils.*;
+import static com.brash.util.Utils.getAverageMarkFromUserOrItem;
 
 /**
  * Реализация интерфейса, описывающего создание пар сходства
