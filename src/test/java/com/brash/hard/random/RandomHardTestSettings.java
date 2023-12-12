@@ -1,4 +1,4 @@
-package com.brash.hard;
+package com.brash.hard.random;
 
 public interface RandomHardTestSettings {
     int NUMBER_ITEMS = 100;

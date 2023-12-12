@@ -1,4 +1,4 @@
-package com.brash.hard;
+package com.brash.hard.gauss;
 
 import com.brash.FilterApplication;
 import com.brash.IntegrationEnvironment;
@@ -9,7 +9,7 @@ import com.brash.data.jpa.ItemRepository;
 import com.brash.data.jpa.MarkRepository;
 import com.brash.data.jpa.UserRepository;
 import com.brash.filter.Filter;
-import com.brash.filter.ItemToItemSimilarity;
+import com.brash.hard.RandomUtils;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -25,15 +25,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import static com.brash.hard.RandomHardTestSettings.*;
+import static com.brash.hard.gauss.GaussHardTestSettings.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = FilterApplication.class)
 @Import(IntegrationEnvironment.JpaIntegrationEnvironmentConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class RandomHardTests {
+public class GaussHardTests {
 
     @Autowired
     private MarkRepository markRepository;
@@ -59,18 +60,20 @@ public class RandomHardTests {
         for (int i = 0; i < NUMBER_ITEMS; i++) {
             items.add(itemRepository.save(new Item().setOriginalId((long) randomUtils.getRandomInt(1, 1000000000))));
         }
-        
-        int percentMarkedItems = (int) (NUMBER_ITEMS * (MAX_PERCENT_MARKED_ITEMS / 100.0));
-        for (User user : users) {
+
+        Map<User, Integer> numberItemsForUser = GaussUtils.getUsersWithGaussianDistribution(users);
+
+        for (Map.Entry<User, Integer> entry : numberItemsForUser.entrySet()) {
+            User user = entry.getKey();
+            int numberItems = entry.getValue();
             List<Item> markedItems = new ArrayList<>();
-            for (int i = 0; i < percentMarkedItems; i++) {
+            for (int i = 0; i < numberItems; i++) {
                 int mark = randomUtils.getRandomInt(MIN_MARK, MAX_MARK);
                 Item item = randomUtils.getRandomUniqueItem(items, markedItems);
                 markedItems.add(item);
                 markRepository.save(new Mark().setUser(user).setItem(item).setMark((double) mark));
                 numberUserMark++;
             }
-
         }
         TestTransaction.flagForCommit();
         TestTransaction.end();
@@ -80,7 +83,7 @@ public class RandomHardTests {
     @Test
     @Transactional
     @Rollback
-    public void randomHardTest() {
+    public void gaussHardTest() {
         saveTestData();
 
         long start = System.currentTimeMillis();
