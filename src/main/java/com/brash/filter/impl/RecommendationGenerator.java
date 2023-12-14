@@ -20,17 +20,36 @@ import java.util.concurrent.ExecutorService;
 
 import static com.brash.util.Utils.*;
 
+/**
+ * Реализация генератора оценок на основе определения соседей как элементов так и пользователей
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class RecommendationGenerator implements ItemToItemRecommendation {
 
+    /**
+     * ExecutorService для параллельной обработки
+     */
     private final ExecutorService executorService;
 
+    /**
+     * Монитор для синхронизации списка сгенерированных оценок
+     */
     private final Object lock = new Object();
 
+    /**
+     * Список сгенерированных оценок
+     */
     private List<Mark> generatedMarks;
 
+    /**
+     * Генерация рекомендаций на основе определения соседей как элементов так и пользователей
+     * @param itemNeighbours Элементы и их ближайшие соседи
+     * @param userNeighbours Пользователи и их ближайшие соседи
+     * @param generatingMarks Таблица элементов для которых нужно сгенерировать оценки
+     * @return Сгенерированные оценки
+     */
     @Override
     public List<Mark> generateAllRecommendation(
             ItemNeighbours itemNeighbours,
@@ -76,7 +95,6 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                         }
                         latch.countDown();
                     });
-//                        generateMarkOnMeanCentering(mark, neighbours);
                 } else if (neighboursWithMark.size() == 0) {
                     executorService.execute(() -> {
                         try {
@@ -87,7 +105,6 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                         }
                         latch.countDown();
                     });
-//                    generateMarkOnVagueSet(mark, neighbours, userNeighbours);
                 } else {
                     List<SimpleSimilarItems> neighboursWithoutMark = neighbours.stream()
                             .filter(item ->
@@ -106,7 +123,6 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                         }
                         latch.countDown();
                     });
-//                    generateMarkOnSparseData(mark, neighboursWithMark, neighboursWithoutMark, userNeighbours);
                 }
             }
         }
@@ -117,6 +133,16 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
         return generatedMarks;
     }
 
+    /**
+     * Генерирует оценку на основе оценок пользователя и ближайших соседей пользователя.
+     * Используется когда пользователь оценил не всех ближайших соседей элемента.
+     * Отсутствующие оценки берутся у ближайшего соседа пользователя.
+     * @param mark Оценка для генерации
+     * @param neighboursWithMark Соседи элемента с оценкой пользователя
+     * @param neighboursWithoutMark Соседи элемента без оценки пользователя
+     * @param similarUsers Соседи пользователей
+     * @throws Exception Ошибка отсутствия ожидаемой оценки пользователя
+     */
     private void generateMarkOnSparseData(
             Mark mark,
             List<SimpleSimilarItems> neighboursWithMark,
@@ -171,10 +197,17 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
         synchronized (lock) {
             generatedMarks.add(mark);
         }
-
-//        return mark;
     }
 
+    /**
+     * Генерирует оценку на основе оценок ближайших соседей пользователя.
+     * Используется когда пользователь не оценил всех ближайших соседей элемента.
+     * Отсутствующие оценки берутся у ближайшего соседа пользователя.
+     * @param mark Оценка для генерации
+     * @param neighbours Соседи элемента
+     * @param similarUsers Соседи пользователей
+     * @throws Exception Ошибка отсутствия ожидаемой оценки пользователя
+     */
     private void generateMarkOnVagueSet(Mark mark, List<SimpleSimilarItems> neighbours, UserNeighbours similarUsers) throws Exception {
         Item currentItem = mark.getItem();
         User currentUser = mark.getUser();
@@ -212,10 +245,15 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
         synchronized (lock) {
             generatedMarks.add(mark);
         }
-
-//        return mark;
     }
 
+    /**
+     * Генерирует оценку на основе оценок пользователя.
+     * Используется когда пользователь оценил всех ближайших соседей элемента.
+     * @param mark Оценка для генерации
+     * @param neighbours Соседи элемента
+     * @throws Exception Ошибка отсутствия ожидаемой оценки пользователя
+     */
     private void generateMarkOnMeanCentering(Mark mark, List<SimpleSimilarItems> neighbours) throws Exception {
         Item currentItem = mark.getItem();
         User currentUser = mark.getUser();
@@ -238,7 +276,5 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
         synchronized (lock) {
             generatedMarks.add(mark);
         }
-
-//        return mark;
     }
 }

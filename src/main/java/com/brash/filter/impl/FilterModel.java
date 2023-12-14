@@ -71,11 +71,20 @@ public class FilterModel implements Filter, AutoCloseable {
         markRepository.saveAll(generatedMarks);
     }
 
+    /**
+     * Закрытие потоков при закрытии приложения
+     */
     @Override
     public void close() {
         executorService.shutdownNow();
     }
 
+    /**
+     * Запускает генерацию значений сходства элементов
+     * @param items Список всех элементов участвующих в генерации оценок
+     * @return Список элементов и их ближайших соседей с оценкой сходства
+     * @throws InterruptedException Возникает при прерывании потока
+     */
     private ItemNeighbours generateItemSimilarity(List<Item> items) throws InterruptedException {
         List<HavingMarks> havingMarksItems = items.stream().map(item -> (HavingMarks)item).toList();
         List<SimilarItems> partsItem = itemToItemSimilarity.updateSimilarity(havingMarksItems);
@@ -83,6 +92,12 @@ public class FilterModel implements Filter, AutoCloseable {
         return generateItemNeighbours(similarItems);
     }
 
+    /**
+     * Запускает генерацию значений сходства пользователей
+     * @param users Список всех пользователей участвующих в генерации оценок
+     * @return Список пользователей и их ближайших соседей с оценкой сходства
+     * @throws InterruptedException Возникает при прерывании потока
+     */
     private UserNeighbours generateUserSimilarity(List<User> users) throws InterruptedException {
         List<HavingMarks> havingMarksUsers = users.stream().map(item -> (HavingMarks)item).toList();
         List<SimilarItems> partsUser = itemToItemSimilarity.updateSimilarity(havingMarksUsers);
@@ -90,10 +105,20 @@ public class FilterModel implements Filter, AutoCloseable {
         return generateUserNeighbours(similarUsers);
     }
 
-    private UserNeighbours generateUserNeighbours(List<SimpleSimilarUsers> similarUsers) {
+    /**
+     * Формирует структуру пользователей и из ближайших соседей
+     * @param similarUsers Список пар сходства пользователей
+     * @return Структуру пользователей и из ближайших соседей
+     * @throws InterruptedException Возникает при прерывании потока
+     */
+    private UserNeighbours generateUserNeighbours(List<SimpleSimilarUsers> similarUsers) throws InterruptedException {
         UserNeighbours userNeighbours = new UserNeighbours(new HashMap<>());
 
         for (int i = 0; i < similarUsers.size(); i++) {
+            if (Thread.currentThread().isInterrupted()) {
+                throw new InterruptedException("Thread with generating similarity" + Thread.currentThread().getName() + "is interrupted");
+            }
+
             User user = similarUsers.get(i).user1();
             if (userNeighbours.neighbours().containsKey(user))
                 continue;
@@ -122,10 +147,20 @@ public class FilterModel implements Filter, AutoCloseable {
         return userNeighbours;
     }
 
-    private ItemNeighbours generateItemNeighbours(List<SimpleSimilarItems> similarItems) {
+    /**
+     * Формирует структуру элементов и из ближайших соседей
+     * @param similarItems Список пар сходства элементов
+     * @return Структуру элементов и из ближайших соседей
+     * @throws InterruptedException Возникает при прерывании потока
+     */
+    private ItemNeighbours generateItemNeighbours(List<SimpleSimilarItems> similarItems) throws InterruptedException {
         ItemNeighbours itemNeighbours = new ItemNeighbours(new HashMap<>());
 
         for (int i = 0; i < similarItems.size(); i++) {
+            if (Thread.currentThread().isInterrupted()) {
+                throw new InterruptedException("Thread with generating similarity" + Thread.currentThread().getName() + "is interrupted");
+            }
+
             Item item = similarItems.get(i).item1();
             if (itemNeighbours.neighbours().containsKey(item))
                 continue;
@@ -154,6 +189,11 @@ public class FilterModel implements Filter, AutoCloseable {
         return itemNeighbours;
     }
 
+    /**
+     * Формирует список простых пар сходства на основании пар сходства нечетких множеств
+     * @param similarItems Список пар сходства нечетких множеств
+     * @return Список простых пар сходства элементов
+     */
     private List<SimpleSimilarItems> simplifySimilarItems(List<SimilarItems> similarItems) {
         List<SimpleSimilarItems> simpleSimilarItems = new ArrayList<>();
         for (SimilarItems item : similarItems) {
@@ -168,6 +208,12 @@ public class FilterModel implements Filter, AutoCloseable {
         return simpleSimilarItems;
     }
 
+
+    /**
+     * Формирует список простых пар сходства на основании пар сходства нечетких множеств
+     * @param similarItems Список пар сходства нечетких множеств
+     * @return Список простых пар сходства пользователей
+     */
     private List<SimpleSimilarUsers> simplifySimilarUsers(List<SimilarItems> similarItems) {
         List<SimpleSimilarUsers> simpleSimilarUsers = new ArrayList<>();
         for (SimilarItems item : similarItems) {
@@ -183,12 +229,10 @@ public class FilterModel implements Filter, AutoCloseable {
     }
 
     /**
-     * Создания набора пользователей для которых нужно сгенерировать
-     * или обновить оценку рекомендации для указанных элементов.
+     * Создания набора элементов и его оценок, которые нужно сгенерировать
      * @param items Все элементы системы
      * @param users Все пользователи системы
-     * @return Набор пользователей для которых нужно сгенерировать
-     * или обновить оценку рекомендации для указанных элементов.
+     * @return Набор элементов и его оценок, которые нужно сгенерировать
      */
     private Map<Item, List<Mark>> getUserAndItemForRecommendationMark(Set<Item> items, List<User> users) {
         Map<Item, List<Mark>> generatingMarksForItem = new HashMap<>();

@@ -14,8 +14,11 @@ import java.util.Map;
 public interface ItemToItemRecommendation {
 
     /**
-     * Генерация оценок рекомендации для переданных пользователей и их элементов (mapUserAndItemsForMarks)
-     * с помощью пар сходства элементов (partSimilarItems)
+     * Генерация рекомендаций
+     * @param itemNeighbours Элементы и их ближайшие соседи
+     * @param userNeighbours Пользователи и их ближайшие соседи
+     * @param generatingMarks Таблица элементов для которых нужно сгенерировать оценки
+     * @return Сгенерированные оценки
      */
     List<Mark> generateAllRecommendation(
             ItemNeighbours itemNeighbours,
