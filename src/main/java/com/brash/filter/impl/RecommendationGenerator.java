@@ -4,10 +4,7 @@ import com.brash.data.entity.Item;
 import com.brash.data.entity.Mark;
 import com.brash.data.entity.User;
 import com.brash.filter.ItemToItemRecommendation;
-import com.brash.filter.data.ItemNeighbours;
-import com.brash.filter.data.SimpleSimilarItems;
-import com.brash.filter.data.SimpleSimilarUsers;
-import com.brash.filter.data.UserNeighbours;
+import com.brash.filter.data.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -155,7 +152,7 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
     ) throws Exception {
         Item currentItem = mark.getItem();
         User currentUser = mark.getUser();
-        double averageMarkValueCurrentItem = getAverageMark(new ArrayList<>(currentItem.getNotGeneratedMarks()));
+        double averageMarkValueCurrentItem = currentItem.getAverageMarks();
         double top = 0.0;
         double bottom = 0.0;
         for (SimpleSimilarItems item : neighboursWithMark) {
@@ -163,13 +160,11 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                 return;
             }
             Mark userMark = getMarkFromUser(
-                    new ArrayList<>(getOtherItem(item, currentItem).getNotGeneratedMarks()),
+                    getOtherItem(item, currentItem).getNotGeneratedMarks(),
                     currentUser
             );
 
-            double averageMarkValueNeighboringItem = getAverageMark(
-                    new ArrayList<>(userMark.getItem().getNotGeneratedMarks())
-            );
+            double averageMarkValueNeighboringItem = userMark.getItem().getAverageMarks();
 
             top += item.similarValue() * (userMark.getMark() - averageMarkValueNeighboringItem);
             bottom += Math.abs(item.similarValue());
@@ -179,10 +174,11 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
             if (Thread.currentThread().isInterrupted()) {
                 return;
             }
-            Mark neighboringMark;
+            SimilarUser similarUserWithMark;
+
             try {
-                neighboringMark = getMarkFromSimilarUser(
-                        new ArrayList<>(getOtherItem(item, currentItem).getNotGeneratedMarks()),
+                similarUserWithMark = getMarkFromSimilarUser(
+                        getOtherItem(item, currentItem).getNotGeneratedMarks(),
                         similarUsers,
                         currentUser
                 );
@@ -191,16 +187,10 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                 e.printStackTrace();
                 continue;
             }
+            Mark neighboringMark = similarUserWithMark.mark();
+            SimpleSimilarUsers similarUser = similarUserWithMark.similarUsers();
 
-            SimpleSimilarUsers similarUser = getSimilarUsers(
-                    similarUsers.neighbours().get(currentUser),
-                    currentUser,
-                    neighboringMark.getUser()
-            );
-
-            double averageMarkValueNeighboringItem = getAverageMark(
-                    new ArrayList<>(neighboringMark.getItem().getNotGeneratedMarks())
-            );
+            double averageMarkValueNeighboringItem = neighboringMark.getItem().getAverageMarks();
 
             top += similarUser.similarValue() * item.similarValue() *
                     (neighboringMark.getMark() - averageMarkValueNeighboringItem);
@@ -232,17 +222,18 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
     ) throws Exception {
         Item currentItem = mark.getItem();
         User currentUser = mark.getUser();
-        double averageMarkValueCurrentItem = getAverageMark(new ArrayList<>(currentItem.getNotGeneratedMarks()));
+        double averageMarkValueCurrentItem = currentItem.getAverageMarks();
         double top = 0.0;
         double bottom = 0.0;
         for (SimpleSimilarItems item : neighbours) {
             if (Thread.currentThread().isInterrupted()) {
                 return;
             }
-            Mark neighboringMark;
+            SimilarUser similarUserWithMark;
+
             try {
-                neighboringMark = getMarkFromSimilarUser(
-                        new ArrayList<>(getOtherItem(item, currentItem).getNotGeneratedMarks()),
+                similarUserWithMark = getMarkFromSimilarUser(
+                        getOtherItem(item, currentItem).getNotGeneratedMarks(),
                         similarUsers,
                         currentUser
                 );
@@ -251,16 +242,10 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                 e.printStackTrace();
                 continue;
             }
+            Mark neighboringMark = similarUserWithMark.mark();
+            SimpleSimilarUsers similarUser = similarUserWithMark.similarUsers();
 
-            SimpleSimilarUsers similarUser = getSimilarUsers(
-                    similarUsers.neighbours().get(currentUser),
-                    currentUser,
-                    neighboringMark.getUser()
-            );
-
-            double averageMarkValueNeighboringItem = getAverageMark(
-                    new ArrayList<>(neighboringMark.getItem().getNotGeneratedMarks())
-            );
+            double averageMarkValueNeighboringItem = neighboringMark.getItem().getAverageMarks();
 
             top += similarUser.similarValue() * item.similarValue() *
                     (neighboringMark.getMark() - averageMarkValueNeighboringItem);
@@ -289,7 +274,7 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
     ) throws Exception {
         Item currentItem = mark.getItem();
         User currentUser = mark.getUser();
-        double averageMarkValueCurrentItem = getAverageMark(new ArrayList<>(currentItem.getNotGeneratedMarks()));
+        double averageMarkValueCurrentItem = currentItem.getAverageMarks();
         double top = 0.0;
         double bottom = 0.0;
         for (SimpleSimilarItems item : neighbours) {
@@ -297,13 +282,11 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                 return;
             }
             Mark userMark = getMarkFromUser(
-                    new ArrayList<>(getOtherItem(item, currentItem).getNotGeneratedMarks()),
+                    getOtherItem(item, currentItem).getNotGeneratedMarks(),
                     currentUser
             );
 
-            double averageMarkValueNeighboringItem = getAverageMark(
-                    new ArrayList<>(userMark.getItem().getNotGeneratedMarks())
-            );
+            double averageMarkValueNeighboringItem = userMark.getItem().getAverageMarks();
 
             top += item.similarValue() * (userMark.getMark() - averageMarkValueNeighboringItem);
             bottom += Math.abs(item.similarValue());

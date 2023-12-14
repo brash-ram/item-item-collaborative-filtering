@@ -254,7 +254,7 @@ public class FilterModel implements Filter, AutoCloseable {
 
                 userItemsWithGeneratedMark.addAll(itemsWithoutUserMark);
                 for (Item item : userItemsWithGeneratedMark) {
-                    Mark mark = null;
+                    Mark mark;
                     try {
                         mark = Utils.getMarkFromUser(generatedMarks, user);
                     } catch (Exception ignored) {

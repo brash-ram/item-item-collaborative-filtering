@@ -6,10 +6,7 @@ import com.brash.data.entity.Mark;
 import com.brash.data.entity.User;
 import com.brash.filter.data.*;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.SortedSet;
+import java.util.*;
 
 /**
  * Класс вспомогательных функций для генерации оценок
@@ -94,17 +91,23 @@ public class Utils {
      * @return Найденная оценка
      * @throws Exception Пользователь не имеет соседей или оценка не найдена
      */
-    public static Mark getMarkFromSimilarUser(List<Mark> marks, UserNeighbours userNeighbours, User user) throws Exception {
+    public static SimilarUser getMarkFromSimilarUser(List<Mark> marks, UserNeighbours userNeighbours, User user) throws Exception {
         if (!userNeighbours.neighbours().containsKey(user) || userNeighbours.neighbours().get(user).isEmpty())
             throw new Exception("User " + user.getId() + " dont have neighbours");
 
         List<SimpleSimilarUsers> neighbours = getSortedListSimilarUsers(userNeighbours.neighbours().get(user));
+        List<User> users = marks.stream()
+                .map(Mark::getUser)
+                .toList();
 
         for (int i = neighbours.size() - 1; i >= 0; i--) {
             try {
-                return getMarkFromUser(marks, getOtherUser(neighbours.get(i), user));
+                SimpleSimilarUsers neighbour = neighbours.get(i);
+                User otherUser = getOtherUser(neighbour, user);
+                if (users.contains(otherUser)) {
+                    return new SimilarUser(neighbour, getMarkFromUser(marks, otherUser));
+                }
             } catch (Exception ignored) {
-//                ignored.printStackTrace();
             }
         }
         throw new Exception("No similar user with mark for item");
@@ -118,11 +121,24 @@ public class Utils {
      * @throws Exception Оценка не найдена
      */
     public static Mark getMarkFromUser(List<Mark> marks, User user) throws Exception {
-        for (Mark mark : marks) {
-            if (mark.getUser().equals(user)) {
-                return mark;
+        marks = new ArrayList<>(marks);
+        marks.sort(Comparator.comparingLong(o -> o.getUser().getId()));
+        long averageId = (marks.get(0).getUser().getId() + marks.get(marks.size() - 1).getUser().getId()) / 2;
+        if (user.getId() > averageId) {
+            for (int i = marks.size() - 1; i >= 0; i--) {
+                Mark mark = marks.get(i);
+                if (mark.getUser().equals(user)) {
+                    return mark;
+                }
+            }
+        } else {
+            for (Mark mark : marks) {
+                if (mark.getUser().equals(user)) {
+                    return mark;
+                }
             }
         }
+
         throw new Exception("Mark from user " + user.getId() + " not found for items");
     }
 
