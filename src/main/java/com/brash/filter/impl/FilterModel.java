@@ -11,6 +11,7 @@ import com.brash.filter.Filter;
 import com.brash.filter.ItemToItemRecommendation;
 import com.brash.filter.ItemToItemSimilarity;
 import com.brash.filter.data.*;
+import com.brash.util.Utils;
 import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -242,15 +243,30 @@ public class FilterModel implements Filter, AutoCloseable {
                 Set<Item> allUserItems = user.getMarks().stream()
                         .map(Mark::getItem).collect(Collectors.toSet());
                 Set<Item> itemsWithoutUserMark = Sets.difference(items, allUserItems);
-                Set<Item> userItemsWithGeneratedMark = user.getMarks().stream()
+
+                List<Mark> generatedMarks = user.getMarks().stream()
                         .filter(Mark::getIsGenerated)
+                        .toList();
+
+                Set<Item> userItemsWithGeneratedMark = generatedMarks.stream()
                         .map(Mark::getItem).collect(Collectors.toSet());
+
                 userItemsWithGeneratedMark.addAll(itemsWithoutUserMark);
                 for (Item item : userItemsWithGeneratedMark) {
+                    Mark mark = null;
+                    try {
+                        mark = Utils.getMarkFromUser(generatedMarks, user);
+                    } catch (Exception ignored) {
+                        mark = new Mark().setItem(item).setUser(user).setIsGenerated(true);
+                    }
+
                     if (generatingMarksForItem.containsKey(item)) {
-                        generatingMarksForItem.get(item).add(new Mark().setItem(item).setUser(user).setIsGenerated(true));
+                        generatingMarksForItem.get(item).add(mark);
                     } else {
-                        generatingMarksForItem.put(item, new ArrayList<>(List.of(new Mark().setItem(item).setUser(user).setIsGenerated(true))));
+                        generatingMarksForItem.put(
+                                item,
+                                new ArrayList<>(List.of(mark))
+                        );
                     }
                 }
             } catch (Exception e) {

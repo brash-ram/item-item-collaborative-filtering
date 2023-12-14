@@ -5,6 +5,7 @@ import com.brash.data.entity.Mark;
 import com.brash.filter.ItemToItemSimilarity;
 import com.brash.filter.data.*;
 import com.brash.util.ItemUtils;
+import com.brash.util.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -178,9 +179,7 @@ public class ItemsSimilarityCalculator implements ItemToItemSimilarity {
     private List<FuzzySet> getFuzzySets(List<HavingMarks> items) {
         List<FuzzySet> fuzzySet = new ArrayList<>();
         for (HavingMarks item : items) {
-            List<Mark> notGeneratedMarks = item.getMarks().stream()
-                    .filter(mark1 -> !mark1.getIsGenerated())
-                    .toList();
+            List<Mark> notGeneratedMarks = Utils.getNotGeneratedMarks(item.getMarks());
             List<FuzzySetItem> fuzzySetItems = new ArrayList<>();
             for (Mark mark : notGeneratedMarks) {
                 double averageMark = getAverageMarkFromUserOrItem(mark, item);

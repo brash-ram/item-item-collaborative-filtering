@@ -92,8 +92,6 @@ public class FilterTests {
     public void itemItemSimilarityCalculateTest() throws InterruptedException {
         saveData();
         List<Item> items = itemRepository.findAll();
-        List<User> users = userRepository.findAll();
-        List<HavingMarks> havingMarksUsers = users.stream().map(item -> (HavingMarks)item).toList();
         List<HavingMarks> havingMarksItems = items.stream().map(item -> (HavingMarks)item).toList();
         List<SimilarItems> part = itemToItemSimilarity.updateSimilarity(havingMarksItems);
 
@@ -101,13 +99,10 @@ public class FilterTests {
 
         part.sort(Comparator.comparingDouble(o -> o.similarValue));
 
-        assertEquals(0.79, part.get(0).similarValue, 0.01);
-        assertEquals(1.15, part.get(1).similarValue, 0.01);
-        assertEquals(1.18, part.get(2).similarValue, 0.01);
+        assertEquals(0.47, part.get(0).similarValue, 0.01);
+        assertEquals(0.54, part.get(1).similarValue, 0.01);
+        assertEquals(0.79, part.get(2).similarValue, 0.01);
 
-//        assertEquals(0.71, part.get(0).similarValue, 0.01);
-//        assertEquals(0.95, part.get(1).similarValue, 0.01);
-//        assertEquals(0.9, part.get(2).similarValue, 0.1);
         TestTransaction.flagForRollback();
         TestTransaction.end();
     }
@@ -120,16 +115,11 @@ public class FilterTests {
     @Rollback
     @Order(2)
     public void filterTest() {
-        saveData();
         filter.updateRecommendations();
         TestTransaction.flagForCommit();
         TestTransaction.end();
         List<Mark> marks = markRepository.findAll();
-//        assertEquals(12, marks.size());
-
-        List<Mark> generatedMarks = marks.stream()
-                .filter(Mark::getIsGenerated)
-                .toList();
+        assertEquals(12, marks.size());
 
         List<Mark> markUserUser1Item2 = marks.stream()
                 .filter(mark ->
@@ -137,7 +127,7 @@ public class FilterTests {
                                 mark.getItem().equals(TEST_ITEMS.get(1)))
                 .toList();
         assertEquals(1, markUserUser1Item2.size());
-        assertEquals(2.49, markUserUser1Item2.get(0).getMark(), 0.1);
+        assertEquals(2.0, markUserUser1Item2.get(0).getMark(), 0.1);
 
         List<Mark> markUserUser2Item3 = marks.stream()
                 .filter(mark ->
@@ -145,7 +135,7 @@ public class FilterTests {
                                 mark.getItem().equals(TEST_ITEMS.get(2)))
                 .toList();
         assertEquals(1, markUserUser2Item3.size());
-        assertEquals(3.27, markUserUser2Item3.get(0).getMark(), 0.1);
+        assertEquals(2.21, markUserUser2Item3.get(0).getMark(), 0.1);
 
         List<Mark> markUserUser4Item1 = marks.stream()
                 .filter(mark ->
@@ -153,7 +143,7 @@ public class FilterTests {
                                 mark.getItem().equals(TEST_ITEMS.get(0)))
                 .toList();
         assertEquals(1, markUserUser4Item1.size());
-        assertEquals(2.0, markUserUser4Item1.get(0).getMark(), 0.1);
+        assertEquals(3.86, markUserUser4Item1.get(0).getMark(), 0.1);
     }
 
     /**
@@ -179,7 +169,7 @@ public class FilterTests {
                                 mark.getItem().equals(TEST_ITEMS.get(1)))
                 .toList();
         assertEquals(1, markUserUser1Item2.size());
-        assertEquals(2.49, markUserUser1Item2.get(0).getMark(), 0.1);
+        assertEquals(2.0, markUserUser1Item2.get(0).getMark(), 0.1);
 
         List<Mark> markUserUser2Item3 = marks.stream()
                 .filter(mark ->
@@ -187,7 +177,7 @@ public class FilterTests {
                                 mark.getItem().equals(TEST_ITEMS.get(2)))
                 .toList();
         assertEquals(1, markUserUser2Item3.size());
-        assertEquals(3.27, markUserUser2Item3.get(0).getMark(), 0.1);
+        assertEquals(2.21, markUserUser2Item3.get(0).getMark(), 0.1);
 
         List<Mark> markUserUser4Item1 = marks.stream()
                 .filter(mark ->
@@ -195,7 +185,7 @@ public class FilterTests {
                                 mark.getItem().equals(TEST_ITEMS.get(0)))
                 .toList();
         assertEquals(1, markUserUser4Item1.size());
-        assertEquals(2.0, markUserUser4Item1.get(0).getMark(), 0.1);
+        assertEquals(3.86, markUserUser4Item1.get(0).getMark(), 0.1);
     }
 
 }

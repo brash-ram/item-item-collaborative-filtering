@@ -9,6 +9,7 @@ import com.brash.filter.data.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.SortedSet;
 
 /**
  * Класс вспомогательных функций для генерации оценок
@@ -147,12 +148,34 @@ public class Utils {
     public static double getAverageMarkFromUserOrItem(Mark mark, HavingMarks type) {
         List<Mark> marks;
         if (type instanceof Item) {
-            marks = new ArrayList<>(mark.getUser().getMarks());
+            marks = new ArrayList<>(getNotGeneratedMarks(mark.getUser().getMarks()));
         } else {
-            marks = new ArrayList<>(mark.getItem().getMarks());
+            marks = new ArrayList<>(getNotGeneratedMarks(mark.getItem().getMarks()));
         }
 
         return getAverageMark(marks);
+    }
+
+    /**
+     * Получить только не сгенерированные оценки
+     * @param marks Оценки
+     * @return Список не сгенерированных оценок
+     */
+    public static List<Mark> getNotGeneratedMarks(List<Mark> marks) {
+        return marks.stream()
+                .filter(mark -> !mark.getIsGenerated())
+                .toList();
+    }
+
+    /**
+     * Получить только не сгенерированные оценки
+     * @param marks Оценки
+     * @return Список не сгенерированных оценок
+     */
+    public static List<Mark> getNotGeneratedMarks(SortedSet<Mark> marks) {
+        return marks.stream()
+                .filter(mark -> !mark.getIsGenerated())
+                .toList();
     }
 
     /**

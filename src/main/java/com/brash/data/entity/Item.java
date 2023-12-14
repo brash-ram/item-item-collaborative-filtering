@@ -5,9 +5,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.Hibernate;
 
-import java.util.Objects;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Элемент системы совместной фильтрации
@@ -34,6 +32,26 @@ public class Item implements Comparable<Item>, HavingMarks {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "item")
     @ToString.Exclude
     private SortedSet<Mark> marks = new TreeSet<>();
+
+    @Transient
+    private volatile List<Mark> notGeneratedMarks;
+
+    @Transient
+    private final Object lock = new Object();
+
+    public List<Mark> getNotGeneratedMarks() {
+        if (notGeneratedMarks == null) {
+            synchronized (lock) {
+                if (notGeneratedMarks == null) {
+                    notGeneratedMarks = marks.stream()
+                            .filter(mark -> !mark.getIsGenerated())
+                            .toList();
+                }
+            }
+
+        }
+        return notGeneratedMarks;
+    }
 
     @Override
     public boolean equals(Object o) {
