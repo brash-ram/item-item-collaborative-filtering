@@ -83,11 +83,10 @@ public class RandomHardTests {
     public void randomHardTest() {
         saveTestData();
 
+        System.out.println("Начинается генерация рекомендаций");
         long start = System.currentTimeMillis();
         filter.updateRecommendations();
         long end = System.currentTimeMillis();
-
-        System.out.println("Время работы генерации рекомендаций: " + ((end - start) / 1000.0) + " сек");
 
         TestTransaction.flagForCommit();
         TestTransaction.end();
@@ -95,6 +94,7 @@ public class RandomHardTests {
         int numberGeneratedMarks = markRepository.countAllByIsGenerated(true);
         List<Mark> zeroMarks = markRepository.findAllByMarkLessThan(0.001);
 
+        System.out.println("Время работы генерации рекомендаций: " + ((end - start) / 1000.0) + " сек");
         System.out.println("Размер матрицы оценок: " + NUMBER_USERS * NUMBER_ITEMS);
         System.out.println("Поставлено оценок - " + numberUserMark);
         System.out.println("Матрица оценок заполнена пользователями на " + ((double) numberUserMark / (NUMBER_USERS * NUMBER_ITEMS)  * 100.0) + "%");

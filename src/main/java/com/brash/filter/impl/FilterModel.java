@@ -55,19 +55,20 @@ public class FilterModel implements Filter, AutoCloseable {
 
         Future<ItemNeighbours> itemNeighboursFuture = executorService.submit(() -> generateItemSimilarity(items));
         Future<UserNeighbours> userNeighboursFuture = executorService.submit(() -> generateUserSimilarity(users));
+        Future<Map<Item, List<Mark>>> futureMapForMarks = executorService.submit(() -> getUserAndItemForRecommendationMark(new HashSet<>(items), users));
 
         ItemNeighbours itemNeighbours;
         UserNeighbours userNeighbours;
+        Map<Item, List<Mark>> mapForMarks;
         try {
             itemNeighbours = itemNeighboursFuture.get();
             userNeighbours = userNeighboursFuture.get();
+            mapForMarks = futureMapForMarks.get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return;
         }
 
-        Map<Item, List<Mark>> mapForMarks = getUserAndItemForRecommendationMark(new HashSet<>(items), users);
-        System.out.println("Начинается генерация рекомендаций");
         List<Mark> generatedMarks = itemToItemRecommendation.generateAllRecommendation(itemNeighbours, userNeighbours, mapForMarks);
         markRepository.saveAll(generatedMarks);
     }
