@@ -1,4 +1,4 @@
-package com.brash.dto;
+package com.brash.dto.web;
 
 import jakarta.validation.constraints.NotNull;
 

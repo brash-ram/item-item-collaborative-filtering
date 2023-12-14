@@ -6,7 +6,7 @@ import com.brash.data.entity.User;
 import com.brash.data.jpa.ItemRepository;
 import com.brash.data.jpa.MarkRepository;
 import com.brash.data.jpa.UserRepository;
-import com.brash.dto.MarkDTO;
+import com.brash.dto.web.MarkDTO;
 import com.brash.exception.NoAvailableMarkException;
 import com.brash.service.MarkService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class MarkServiceImpl implements MarkService {
     private final UserRepository userRepository;
 
     @Override
-    public Mark addMark(int mark, long userId, long itemId) {
+    public Mark addMark(double mark, long userId, long itemId) {
         return markRepository.save(
                 new Mark()
                         .setItem(itemRepository.findByOriginalId(itemId))

@@ -1,6 +1,6 @@
-#rabbit:
-#    queue: scrapper-queue
-#    exchange: scrapper-exchange
+rabbit:
+    queue: filter-queue
+    exchange: filter-queue
 
 similarity:
     smoothing-factor: 0.1

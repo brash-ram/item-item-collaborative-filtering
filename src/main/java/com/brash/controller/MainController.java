@@ -1,10 +1,10 @@
 package com.brash.controller;
 
 import com.brash.data.entity.Mark;
-import com.brash.dto.AddMarkDTO;
-import com.brash.dto.ItemDTO;
-import com.brash.dto.MarkDTO;
-import com.brash.dto.UserDTO;
+import com.brash.dto.web.AddMarkDTO;
+import com.brash.dto.web.ItemDTO;
+import com.brash.dto.web.MarkDTO;
+import com.brash.dto.web.UserDTO;
 import com.brash.exception.NoAvailableMarkException;
 import com.brash.service.ItemService;
 import com.brash.service.MarkService;
