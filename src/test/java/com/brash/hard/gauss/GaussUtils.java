@@ -14,8 +14,8 @@ public class GaussUtils {
         Map<User, Integer> usersWithGaussianDistribution = new HashMap<>();
 
         Map<Integer, Integer> numberItemsMap = new HashMap<>() {{
-            put((int) (NUMBER_ITEMS * 0.001), (int) (users.size() * 0.002));
-            put((int) (NUMBER_ITEMS * 0.01), (int) (users.size() * 0.021));
+            put((int) (NUMBER_ITEMS * 0.01), (int) (users.size() * 0.002));
+            put((int) (NUMBER_ITEMS * 0.02), (int) (users.size() * 0.021));
             put((int) (NUMBER_ITEMS * 0.03), (int) (users.size() * 0.136));
             put((int) (NUMBER_ITEMS * 0.05), (int) (users.size() * 0.341));
             put((int) (NUMBER_ITEMS * 0.07), (int) (users.size() * 0.341));
