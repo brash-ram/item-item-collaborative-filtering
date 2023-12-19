@@ -59,7 +59,6 @@ public class FilterTests {
 
     /**
      * Загрузка тестовой матрицы оценок.
-     * Просчет примера https://www.geeksforgeeks.org/item-to-item-based-collaborative-filtering/
      */
     public void saveData() {
         for (long i = 0L; i < 4; i++) {
