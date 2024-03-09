@@ -25,16 +25,16 @@ spring:
         hibernate:
             ddl-auto: create
     datasource:
-        url: "jdbc:postgresql://localhost:5432/filter"
-        username: postgres
-        password: qwerty
+        url: ${DB_URL}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
         driver-class-name: org.postgresql.Driver
 
-#    rabbitmq:
-#        host: ${RABBIT_HOST}
-#        username: user
-#        password: qwerty
-#        port: 5672
+    rabbitmq:
+        host: ${RABBIT_HOST}
+        username: ${RABBIT_USERNAME}
+        password: ${RABBIT_PASSWORD}
+        port: ${RABBIT_PORT}
 
     application:
         name: collaborative-filter
