@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * Класс вспомогательных функций для генерации оценок
  */
-public class Utils {
+public class FilterUtils {
 
     /**
      * Монитор для синхронизации сортировки списков

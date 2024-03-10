@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
-import static com.brash.util.Utils.*;
+import static com.brash.util.FilterUtils.*;
 
 /**
  * Реализация генератора оценок на основе определения соседей как элементов так и пользователей

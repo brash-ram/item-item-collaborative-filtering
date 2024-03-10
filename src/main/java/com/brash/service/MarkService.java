@@ -11,6 +11,8 @@ public interface MarkService {
     Mark addMark(double mark, long userId, long itemId);
 
     Mark getMark(long userId, long itemId) throws NoAvailableMarkException;
-    List<Mark> getGeneratedMarks(long userId) throws NoAvailableMarkException;
-    List<MarkDTO> getGeneratedMarksDto(long userId) throws NoAvailableMarkException;
+    List<Mark> getGeneratedMarks(long userId);
+    List<Mark> getGeneratedMarks(long userId, int offset, int limit);
+    List<Mark> getMarks(long userId, int offset, int limit);
+//    List<Mark> getMarks(long itemId, int offset, int limit);
 }

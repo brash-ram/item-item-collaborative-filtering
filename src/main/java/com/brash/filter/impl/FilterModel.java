@@ -11,7 +11,7 @@ import com.brash.filter.Filter;
 import com.brash.filter.ItemToItemRecommendation;
 import com.brash.filter.ItemToItemSimilarity;
 import com.brash.filter.data.*;
-import com.brash.util.Utils;
+import com.brash.util.FilterUtils;
 import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +24,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-import static com.brash.util.Utils.getItemFromFuzzySet;
-import static com.brash.util.Utils.getUserFromFuzzySet;
+import static com.brash.util.FilterUtils.getItemFromFuzzySet;
+import static com.brash.util.FilterUtils.getUserFromFuzzySet;
 
 /**
  * Реализация интерфейса, описывающего запуск алгоритма совместной фильтрации
@@ -256,7 +256,7 @@ public class FilterModel implements Filter, AutoCloseable {
                 for (Item item : userItemsWithGeneratedMark) {
                     Mark mark;
                     try {
-                        mark = Utils.getMarkFromUser(generatedMarks, user);
+                        mark = FilterUtils.getMarkFromUser(generatedMarks, user);
                     } catch (Exception ignored) {
                         mark = new Mark().setItem(item).setUser(user).setIsGenerated(true);
                     }

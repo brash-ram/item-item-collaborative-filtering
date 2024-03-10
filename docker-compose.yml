@@ -4,26 +4,26 @@ networks:
     backend:
 
 services:
-    app:
-        container_name: filter_container
-        image: filter_image
-        depends_on:
-            - rabbitmq
-            - postgres
-        build:
-            context: .
-        environment:
-            DB_URL: "jdbc:postgresql://postgres:5432/filter"
-            DB_USERNAME: "postgres"
-            DB_PASSWORD: "qwerty"
-            RABBIT_HOST: "rabbitmq"
-            RABBIT_USERNAME: "user"
-            RABBIT_PASSWORD: "qwerty"
-            RABBIT_PORT: 5672
-        ports:
-            - "8080:8080"
-        networks:
-            - backend
+#    app:
+#        container_name: filter_container
+#        image: filter_image
+#        depends_on:
+#            - rabbitmq
+#            - postgres
+#        build:
+#            context: .
+#        environment:
+#            DB_URL: "jdbc:postgresql://postgres:5432/filter"
+#            DB_USERNAME: "postgres"
+#            DB_PASSWORD: "qwerty"
+#            RABBIT_HOST: "rabbitmq"
+#            RABBIT_USERNAME: "user"
+#            RABBIT_PASSWORD: "qwerty"
+#            RABBIT_PORT: 5672
+#        ports:
+#            - "8080:8080"
+#        networks:
+#            - backend
 
     postgres:
         container_name: postgres_container
@@ -32,6 +32,8 @@ services:
             POSTGRES_DB: "filter"
             POSTGRES_USER: "postgres"
             POSTGRES_PASSWORD: "qwerty"
+        ports:
+            - "5432:5432"
         volumes:
             - ./volumes/2. Init Database:/docker-entrypoint-initdb.d
             - ./volumes/postgres-data:/var/lib/postgresql/data
@@ -56,5 +58,6 @@ services:
             - ./volumes/rabbitmq:/var/lib/rabbitmq
         ports:
             - "15672:15672"
+            - "5672:5672"
         networks:
             - backend

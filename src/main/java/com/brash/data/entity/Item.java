@@ -1,6 +1,6 @@
 package com.brash.data.entity;
 
-import com.brash.util.Utils;
+import com.brash.util.FilterUtils;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -47,7 +47,7 @@ public class Item implements Comparable<Item>, HavingMarks {
         if (averageMark == 0.0 && getNotGeneratedMarks().size() != 0) {
             synchronized (lock) {
                 if (averageMark == 0.0) {
-                    averageMark = Utils.getAverageMark(notGeneratedMarks);
+                    averageMark = FilterUtils.getAverageMark(notGeneratedMarks);
                 }
             }
 

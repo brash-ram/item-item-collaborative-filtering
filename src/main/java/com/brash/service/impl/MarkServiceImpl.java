@@ -6,13 +6,16 @@ import com.brash.data.entity.User;
 import com.brash.data.jpa.ItemRepository;
 import com.brash.data.jpa.MarkRepository;
 import com.brash.data.jpa.UserRepository;
-import com.brash.dto.web.MarkDTO;
 import com.brash.exception.NoAvailableMarkException;
 import com.brash.service.MarkService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.print.Pageable;
 import java.util.List;
 
 @Service
@@ -47,22 +50,27 @@ public class MarkServiceImpl implements MarkService {
 
     @Override
     @Transactional
-    public List<Mark> getGeneratedMarks(long userOriginalId) throws NoAvailableMarkException {
+    public List<Mark> getGeneratedMarks(long userOriginalId) {
         User user = userRepository.findByOriginalId(userOriginalId);
-        List<Mark> marksGreaterThanAverageMarkValue =
-                markRepository.findAllByUserAndMarkGreaterThenAverage(user);
-        if (marksGreaterThanAverageMarkValue.size() == 0) {
-            throw new NoAvailableMarkException("Mark not found with userOriginalId = " + userOriginalId);
-        }
-        return marksGreaterThanAverageMarkValue;
+        return markRepository.findAllByUserAndMarkGreaterThenAverage(user);
     }
 
     @Override
     @Transactional
-    public List<MarkDTO> getGeneratedMarksDto(long userOriginalId) throws NoAvailableMarkException {
-        List<Mark> generatedMarks = getGeneratedMarks(userOriginalId);
-        return generatedMarks.stream()
-                .map(mark -> new MarkDTO(userOriginalId, mark.getItem().getId(), mark.getMark()))
-                .toList();
+    public List<Mark> getGeneratedMarks(long userOriginalId, int offset, int limit) {
+        User user = userRepository.findByOriginalId(userOriginalId);
+        Page<Mark> marksGreaterThanAverageMarkValue =
+                markRepository.findAllByIsGenerated(
+                        true,
+                        PageRequest.of(offset, limit, Sort.by(Sort.Direction.ASC, "mark_value")));
+        return marksGreaterThanAverageMarkValue.toList();
+    }
+
+    @Override
+    @Transactional
+    public List<Mark> getMarks(long userOriginalId, int offset, int limit) {
+        User user = userRepository.findByOriginalId(userOriginalId);
+        Page<Mark> marks = markRepository.findAll(PageRequest.of(offset, limit, Sort.by(Sort.Direction.ASC, "mark_value")));
+        return marks.toList();
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -15,6 +16,7 @@ import java.util.concurrent.Executors;
  */
 @Configuration
 @RequiredArgsConstructor
+@EnableWebMvc
 public class ApplicationConfiguration {
 
     private final RabbitMQConfig rabbitMQConfig;

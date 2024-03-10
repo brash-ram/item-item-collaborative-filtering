@@ -5,10 +5,15 @@ import com.brash.dto.web.AddMarkDTO;
 import com.brash.dto.web.ItemDTO;
 import com.brash.dto.web.MarkDTO;
 import com.brash.dto.web.UserDTO;
+import com.brash.exception.ExceptionBodyResponse;
 import com.brash.exception.NoAvailableMarkException;
 import com.brash.service.ItemService;
 import com.brash.service.MarkService;
 import com.brash.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -19,42 +24,47 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/filter")
+@RequestMapping(path = "/api/general")
 public class MainController {
     private final UserService userService;
     private final ItemService itemService;
     private final MarkService markService;
 
+    @Operation(
+        summary = "Добавить пользователя"
+    )
     @PostMapping("/add/user")
     public ResponseEntity<UserDTO> addUser(@NotNull @Valid @RequestBody UserDTO userDTO) {
         userService.addUser(userDTO.id());
         return ResponseEntity.ok(userDTO);
     }
 
+    @Operation(
+            summary = "Добавить элемент"
+    )
     @PostMapping("/add/item")
     public ResponseEntity<ItemDTO> addItem(@NotNull @Valid @RequestBody ItemDTO itemDTO) {
         itemService.addItem(itemDTO.id());
         return ResponseEntity.ok(itemDTO);
     }
 
+    @Operation(
+            summary = "Добавить оценку"
+    )
     @PostMapping("/add/mark")
     public ResponseEntity<AddMarkDTO> addMark(@NotNull @Valid @RequestBody AddMarkDTO addMarkDTO) {
         markService.addMark(addMarkDTO.mark(), addMarkDTO.userId(), addMarkDTO.itemId());
         return ResponseEntity.ok(addMarkDTO);
     }
 
-    @GetMapping("/get/mark")
-    public ResponseEntity<MarkDTO> getMark(@NotNull @Valid @RequestParam Long userId,
-                                              @NotNull @Valid @RequestParam Long itemId)
-            throws NoAvailableMarkException {
-        Mark mark = markService.getMark(userId, itemId);
-        return ResponseEntity.ok(new MarkDTO(userId, itemId, mark.getMark()));
-    }
+//    @Operation(
+//            summary = "Получить оценку"
+//    )
+//    @GetMapping("/mark")
+//    public ResponseEntity<MarkDTO> getMark(@NotNull @RequestParam long userId,
+//                                           @NotNull @RequestParam long itemId) throws NoAvailableMarkException {
+//        Mark mark = markService.getMark(userId, itemId);
+//        return ResponseEntity.ok(new MarkDTO(userId, itemId, mark.getMark()));
+//    }
 
-    @GetMapping("/get/mark/all")
-    public ResponseEntity<List<MarkDTO>> getAllGeneratedMarks(@NotNull @Valid @RequestParam Long userId)
-            throws NoAvailableMarkException {
-        List<MarkDTO> marks = markService.getGeneratedMarksDto(userId);
-        return ResponseEntity.ok(marks);
-    }
 }
