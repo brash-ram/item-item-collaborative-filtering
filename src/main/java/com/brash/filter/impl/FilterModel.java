@@ -10,16 +10,17 @@ import com.brash.data.jpa.UserRepository;
 import com.brash.filter.Filter;
 import com.brash.filter.ItemToItemRecommendation;
 import com.brash.filter.ItemToItemSimilarity;
+import com.brash.filter.SimilarityStorage;
 import com.brash.filter.data.*;
 import com.brash.util.FilterUtils;
 import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -44,33 +45,59 @@ public class FilterModel implements Filter, AutoCloseable {
 
     private final ExecutorService executorService;
 
+    private final SimilarityStorage similarityStorage;
+
     /**
      * Запуск обновления старых и генерации новых оценок рекомендации
      */
     @Override
     @Transactional
+    @SneakyThrows
     public void updateRecommendations() {
         List<Item> items = itemRepository.findAll();
         List<User> users = userRepository.findAll();
 
-        Future<ItemNeighbours> itemNeighboursFuture = executorService.submit(() -> generateItemSimilarity(items));
-        Future<UserNeighbours> userNeighboursFuture = executorService.submit(() -> generateUserSimilarity(users));
+        Future<ItemNeighbours> itemNeighboursFuture = executorService.submit(() -> getItemNeighbours(items));
+        Future<UserNeighbours> userNeighboursFuture = executorService.submit(() -> getUserNeighbours(users));
         Future<Map<Item, List<Mark>>> futureMapForMarks = executorService.submit(() -> getUserAndItemForRecommendationMark(new HashSet<>(items), users));
 
         ItemNeighbours itemNeighbours;
         UserNeighbours userNeighbours;
         Map<Item, List<Mark>> mapForMarks;
-        try {
-            itemNeighbours = itemNeighboursFuture.get();
-            userNeighbours = userNeighboursFuture.get();
-            mapForMarks = futureMapForMarks.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+
+        itemNeighbours = itemNeighboursFuture.get();
+        if (itemNeighbours == null) {
+            userNeighboursFuture.cancel(false);
+            futureMapForMarks.cancel(false);
             return;
         }
+        userNeighbours = userNeighboursFuture.get();
+        mapForMarks = futureMapForMarks.get();
 
         List<Mark> generatedMarks = itemToItemRecommendation.generateAllRecommendation(itemNeighbours, userNeighbours, mapForMarks);
         markRepository.saveAll(generatedMarks);
+    }
+
+    @Override
+    public void generateItemAndUserSimilarity() {
+        List<Item> items = itemRepository.findAll();
+        List<User> users = userRepository.findAll();
+
+        executorService.execute(() -> {
+            try {
+                generateItemSimilarity(items);
+            } catch (InterruptedException e) {
+                log.error(e.getMessage());
+            }
+        });
+
+        executorService.execute(() -> {
+            try {
+                generateUserSimilarity(users);
+            } catch (InterruptedException e) {
+                log.error(e.getMessage());
+            }
+        });
     }
 
     /**
@@ -82,29 +109,68 @@ public class FilterModel implements Filter, AutoCloseable {
     }
 
     /**
-     * Запускает генерацию значений сходства элементов
-     * @param items Список всех элементов участвующих в генерации оценок
-     * @return Список элементов и их ближайших соседей с оценкой сходства
+     * Получить сходства элементов
+     * @return Список элементов и их ближайших соседей с оценкой сходства или null, если невозможно получить список
      * @throws InterruptedException Возникает при прерывании потока
      */
-    private ItemNeighbours generateItemSimilarity(List<Item> items) throws InterruptedException {
+    private ItemNeighbours getItemNeighbours(List<Item> items) throws InterruptedException {
+        if (similarityStorage.getItemNeighbours() == null) {
+            if (similarityStorage.isGenerating()) return null;
+
+            generateItemSimilarity(items);
+        }
+        return similarityStorage.getItemNeighbours();
+    }
+
+    /**
+     * Получить сходства элементов
+     * @return Список элементов и их ближайших соседей с оценкой сходства или null, если невозможно получить список
+     * @throws InterruptedException Возникает при прерывании потока
+     */
+    private UserNeighbours getUserNeighbours(List<User> users) throws InterruptedException {
+        if (similarityStorage.getUserNeighbours() == null) {
+            if (similarityStorage.isGenerating()) return null;
+
+            generateUserSimilarity(users);
+        }
+        return similarityStorage.getUserNeighbours();
+    }
+
+    /**
+     * Запускает генерацию значений сходства элементов
+     *
+     * @param items Список всех элементов участвующих в генерации оценок
+     * @throws InterruptedException Возникает при прерывании потока
+     */
+    private void generateItemSimilarity(List<Item> items) throws InterruptedException {
         List<HavingMarks> havingMarksItems = items.stream().map(item -> (HavingMarks)item).toList();
+        if (havingMarksItems.isEmpty()) {
+            return;
+        }
         List<SimilarItems> partsItem = itemToItemSimilarity.updateSimilarity(havingMarksItems);
         List<SimpleSimilarItems> similarItems = simplifySimilarItems(partsItem);
-        return generateItemNeighbours(similarItems);
+        ItemNeighbours result = generateItemNeighbours(similarItems);
+        similarityStorage.setItemNeighbours(result);
     }
 
     /**
      * Запускает генерацию значений сходства пользователей
+     *
      * @param users Список всех пользователей участвующих в генерации оценок
-     * @return Список пользователей и их ближайших соседей с оценкой сходства
      * @throws InterruptedException Возникает при прерывании потока
      */
-    private UserNeighbours generateUserSimilarity(List<User> users) throws InterruptedException {
+    private void generateUserSimilarity(List<User> users) throws InterruptedException {
         List<HavingMarks> havingMarksUsers = users.stream().map(item -> (HavingMarks)item).toList();
+        if (havingMarksUsers.isEmpty()) {
+            return;
+        }
         List<SimilarItems> partsUser = itemToItemSimilarity.updateSimilarity(havingMarksUsers);
         List<SimpleSimilarUsers> similarUsers = simplifySimilarUsers(partsUser);
-        return generateUserNeighbours(similarUsers);
+        UserNeighbours result = generateUserNeighbours(similarUsers);
+        for (var userEntry : result.neighbours().entrySet()) {
+            FilterUtils.getSortedListSimilarUsers(userEntry.getValue());
+        }
+        similarityStorage.setUserNeighbours(result);
     }
 
     /**
@@ -124,27 +190,13 @@ public class FilterModel implements Filter, AutoCloseable {
             User user = similarUsers.get(i).user1();
             if (userNeighbours.neighbours().containsKey(user))
                 continue;
-            List<SimpleSimilarUsers> neighbours = new ArrayList<>();
-            for (SimpleSimilarUsers similarUser : similarUsers) {
-                User similarUser1 = similarUser.user1();
-                User similarUser2 = similarUser.user2();
-                if (user.equals(similarUser1) || user.equals(similarUser2)) {
-                    neighbours.add(similarUser);
-                }
-            }
-            userNeighbours.neighbours().put(user, neighbours);
+            FilterUtils.addUserNeighbours(userNeighbours, similarUsers, user);
         }
 
-        User user = similarUsers.get(similarUsers.size() - 1).user2();
-        List<SimpleSimilarUsers> neighbours = new ArrayList<>();
-        for (SimpleSimilarUsers similarUser : similarUsers) {
-            User similarUser1 = similarUser.user1();
-            User similarUser2 = similarUser.user2();
-            if (user.equals(similarUser1) || user.equals(similarUser2)) {
-                neighbours.add(similarUser);
-            }
+        if (!similarUsers.isEmpty()) {
+            User user = similarUsers.getLast().user2();
+            FilterUtils.addUserNeighbours(userNeighbours, similarUsers, user);
         }
-        userNeighbours.neighbours().put(user, neighbours);
 
         return userNeighbours;
     }
@@ -166,27 +218,13 @@ public class FilterModel implements Filter, AutoCloseable {
             Item item = similarItems.get(i).item1();
             if (itemNeighbours.neighbours().containsKey(item))
                 continue;
-            List<SimpleSimilarItems> neighbours = new ArrayList<>();
-            for (SimpleSimilarItems similarItem : similarItems) {
-                Item similarItem1 = similarItem.item1();
-                Item similarItem2 = similarItem.item2();
-                if (item.equals(similarItem1) || item.equals(similarItem2)) {
-                    neighbours.add(similarItem);
-                }
-            }
-            itemNeighbours.neighbours().put(item, neighbours);
+            FilterUtils.addItemNeighbours(itemNeighbours, similarItems, item);
         }
 
-        Item item = similarItems.get(similarItems.size() - 1).item2();
-        List<SimpleSimilarItems> neighbours = new ArrayList<>();
-        for (SimpleSimilarItems similarItem : similarItems) {
-            Item similarItem1 = similarItem.item1();
-            Item similarItem2 = similarItem.item2();
-            if (item.equals(similarItem1) || item.equals(similarItem2)) {
-                neighbours.add(similarItem);
-            }
+        if (!similarItems.isEmpty()) {
+            Item item = similarItems.getLast().item2();
+            FilterUtils.addItemNeighbours(itemNeighbours, similarItems, item);
         }
-        itemNeighbours.neighbours().put(item, neighbours);
 
         return itemNeighbours;
     }

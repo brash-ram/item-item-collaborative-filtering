@@ -1,9 +1,13 @@
 rabbit:
-    queue: filter-queue
-    exchange: filter-queue
+    queue: ${FILTER_QUEUE} filter-queue
+    exchange: ${FILTER_EXCHANGE} filter-queue
 
 similarity:
-    smoothing-factor: 0.1
+    smoothing-factor: 0.00001
+
+times:
+    time-update-filter: ${TIME_UPDATE_FILTER}
+    time-update-similarity: ${TIME_UPDATE_SIMILARITY}
 
 server:
     port: 8080
@@ -38,3 +42,8 @@ spring:
 
     application:
         name: collaborative-filter
+
+
+logging:
+    level:
+        root: info

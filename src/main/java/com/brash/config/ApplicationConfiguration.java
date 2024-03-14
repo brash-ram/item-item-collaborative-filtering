@@ -20,6 +20,18 @@ import java.util.concurrent.Executors;
 public class ApplicationConfiguration {
 
     private final RabbitMQConfig rabbitMQConfig;
+
+//    @Value("${time-update-filter}")
+//    private int timeUpdateFilter;
+//
+//    @Value("${time-update-similarity}")
+//    private int ;
+
+//    @Bean("delay")
+//    public long getDelay() {
+//        return config.scheduler().interval().toMillis();
+//    }
+
     /**
      * Создание ExecutorService для работы с потоками
      * @return ExecutorService для работы с потоками

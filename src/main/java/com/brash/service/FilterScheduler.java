@@ -2,6 +2,7 @@ package com.brash.service;
 
 import com.brash.filter.Filter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +12,15 @@ public class FilterScheduler {
 
     private final Filter filter;
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Async
+    @Scheduled(fixedDelayString = "${time-update-filter}")
     public void updateRecommendations() {
         filter.updateRecommendations();
+    }
+
+    @Async
+    @Scheduled(fixedDelayString = "${time-update-similarity}")
+    public void updateSimilarity() {
+        filter.generateItemAndUserSimilarity();
     }
 }

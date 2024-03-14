@@ -6,7 +6,10 @@ import com.brash.data.entity.Mark;
 import com.brash.data.entity.User;
 import com.brash.filter.data.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.SortedSet;
 
 /**
  * Класс вспомогательных функций для генерации оценок
@@ -17,6 +20,50 @@ public class FilterUtils {
      * Монитор для синхронизации сортировки списков
      */
     private static final Object sortLock = new Object();
+
+    /**
+     * Добавить соседей данного пользователя
+     * @param userNeighbours Структура пользователей и из ближайших соседей
+     * @param similarUsers Список пар сходства пользователей
+     * @param user Сравниваемый пользователь
+     */
+    public static void addUserNeighbours(
+            UserNeighbours userNeighbours,
+            List<SimpleSimilarUsers> similarUsers,
+            User user
+    ) {
+        List<SimpleSimilarUsers> neighbours = new ArrayList<>();
+        for (SimpleSimilarUsers similarUser : similarUsers) {
+            User similarUser1 = similarUser.user1();
+            User similarUser2 = similarUser.user2();
+            if (user.equals(similarUser1) || user.equals(similarUser2)) {
+                neighbours.add(similarUser);
+            }
+        }
+        userNeighbours.neighbours().put(user, neighbours);
+    }
+
+    /**
+     * Добавить соседей данного элемента
+     * @param itemNeighbours Структура элементов и из ближайших соседей
+     * @param similarItems Список пар сходства элементов
+     * @param item Сравниваемый элемент
+     */
+    public static void addItemNeighbours(
+            ItemNeighbours itemNeighbours,
+            List<SimpleSimilarItems> similarItems,
+            Item item
+    ) {
+        List<SimpleSimilarItems> neighbours = new ArrayList<>();
+        for (SimpleSimilarItems similarItem : similarItems) {
+            Item similarItem1 = similarItem.item1();
+            Item similarItem2 = similarItem.item2();
+            if (item.equals(similarItem1) || item.equals(similarItem2)) {
+                neighbours.add(similarItem);
+            }
+        }
+        itemNeighbours.neighbours().put(item, neighbours);
+    }
 
     /**
      * Расчет логарифма по основанию 2
@@ -95,7 +142,7 @@ public class FilterUtils {
         if (!userNeighbours.neighbours().containsKey(user) || userNeighbours.neighbours().get(user).isEmpty())
             throw new Exception("User " + user.getId() + " dont have neighbours");
 
-        List<SimpleSimilarUsers> neighbours = getSortedListSimilarUsers(userNeighbours.neighbours().get(user));
+        List<SimpleSimilarUsers> neighbours = userNeighbours.neighbours().get(user);
         List<User> users = marks.stream()
                 .map(Mark::getUser)
                 .toList();
@@ -199,7 +246,7 @@ public class FilterUtils {
      * @param neighbours Пары сходства пользователей
      * @return Отсортированный список
      */
-    private static List<SimpleSimilarUsers> getSortedListSimilarUsers(List<SimpleSimilarUsers> neighbours) {
+    public static List<SimpleSimilarUsers> getSortedListSimilarUsers(List<SimpleSimilarUsers> neighbours) {
         synchronized (sortLock) {
             neighbours.sort(Comparator.comparingDouble(SimpleSimilarUsers::similarValue));
         }

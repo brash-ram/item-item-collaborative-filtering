@@ -10,6 +10,7 @@ import com.brash.data.jpa.MarkRepository;
 import com.brash.data.jpa.UserRepository;
 import com.brash.filter.Filter;
 import com.brash.hard.RandomUtils;
+import com.brash.service.FilterScheduler;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -17,6 +18,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -33,6 +35,7 @@ import static com.brash.hard.random.RandomHardTestSettings.*;
 @Import(IntegrationEnvironment.JpaIntegrationEnvironmentConfiguration.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@MockBean(FilterScheduler.class)
 public class RandomHardTests {
 
     @Autowired

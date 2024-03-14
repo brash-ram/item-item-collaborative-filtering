@@ -6,7 +6,10 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.Hibernate;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Элемент системы совместной фильтрации

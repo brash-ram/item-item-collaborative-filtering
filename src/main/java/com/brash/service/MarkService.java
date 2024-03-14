@@ -1,7 +1,6 @@
 package com.brash.service;
 
 import com.brash.data.entity.Mark;
-import com.brash.dto.web.MarkDTO;
 import com.brash.exception.NoAvailableMarkException;
 
 import java.util.List;

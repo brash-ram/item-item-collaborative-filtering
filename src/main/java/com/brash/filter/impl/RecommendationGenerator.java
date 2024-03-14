@@ -95,8 +95,10 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                             e.printStackTrace();
                         }
                         latch.countDown();
+                        if (latch.getCount() % 1000 == 0)
+                            log.debug(String.valueOf(latch.getCount()));
                     });
-                } else if (neighboursWithMark.size() == 0) {
+                } else if (neighboursWithMark.isEmpty()) {
                     executorService.execute(() -> {
                         try {
                             generateMarkOnVagueSet(mark, neighbours, userNeighbours);
@@ -105,6 +107,8 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                             e.printStackTrace();
                         }
                         latch.countDown();
+                        if (latch.getCount() % 1000 == 0)
+                            log.info(String.valueOf(latch.getCount()));
                     });
                 } else {
                     List<SimpleSimilarItems> neighboursWithoutMark = neighbours.stream()
@@ -123,14 +127,21 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                             e.printStackTrace();
                         }
                         latch.countDown();
+                        if (latch.getCount() % 1000 == 0)
+                            log.error(String.valueOf(latch.getCount()));
                     });
                 }
             }
         }
         try {
             latch.await();
-        } catch (InterruptedException ignored) {
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+        System.out.println("-----------");
+        System.out.println(latch.getCount());
+        System.out.println(numberLatch);
+        System.out.println("-----------");
         return generatedMarks;
     }
 

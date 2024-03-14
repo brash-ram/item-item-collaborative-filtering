@@ -2,7 +2,6 @@ package com.brash.service.impl;
 
 import com.brash.data.entity.Item;
 import com.brash.data.jpa.ItemRepository;
-import com.brash.dto.web.ItemDTO;
 import com.brash.dto.web.ItemsDTO;
 import com.brash.filter.SimilarityStorage;
 import com.brash.filter.data.SimpleSimilarItems;

@@ -6,7 +6,6 @@ import com.brash.data.entity.Item;
 import com.brash.data.entity.Mark;
 import com.brash.data.entity.User;
 import com.brash.data.jpa.MarkRepository;
-import com.brash.exception.NoAvailableMarkException;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,11 +47,7 @@ public class MarkServiceTests {
         markRepository.save(new Mark().setItem(item).setUser(user).setMark(5.0).setIsGenerated(true));
 
         List<Mark> marks = null;
-        try {
-            marks = markService.getGeneratedMarks(1L);
-        } catch (NoAvailableMarkException ex) {
-            System.out.println(ex.getMessage());
-        }
+        marks = markService.getGeneratedMarks(1L);
 
         assertNotNull(marks);
         assertEquals(1, marks.size());

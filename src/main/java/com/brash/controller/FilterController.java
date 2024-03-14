@@ -2,6 +2,7 @@ package com.brash.controller;
 
 import com.brash.data.entity.Mark;
 import com.brash.dto.web.ItemsDTO;
+import com.brash.service.ItemService;
 import com.brash.service.MarkService;
 import com.brash.util.Mapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +22,7 @@ import java.util.List;
 public class FilterController {
 
 //    private final UserService userService;
-//    private final ItemService itemService;
+    private final ItemService itemService;
     private final MarkService markService;
 
     @Operation(
@@ -53,7 +54,7 @@ public class FilterController {
     public ResponseEntity<ItemsDTO> getSimilarityItems(@NotNull @RequestParam long itemId,
                                                             @NotNull @RequestParam int offset,
                                                             @NotNull @RequestParam int limit) {
-        List<Mark> marks = markService.getGeneratedMarks(itemId, offset, limit);
-        return ResponseEntity.ok(Mapper.mapToItemsDTO(marks));
+        ItemsDTO items = itemService.getSimilarity(itemId, offset, limit);
+        return ResponseEntity.ok(items);
     }
 }

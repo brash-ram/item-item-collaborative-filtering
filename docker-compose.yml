@@ -20,6 +20,8 @@ services:
 #            RABBIT_USERNAME: "user"
 #            RABBIT_PASSWORD: "qwerty"
 #            RABBIT_PORT: 5672
+#            FILTER_QUEUE: "filter-queue"
+#            FILTER_EXCHANGE: "filter-queue"
 #        ports:
 #            - "8080:8080"
 #        networks:

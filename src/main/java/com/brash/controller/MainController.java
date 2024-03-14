@@ -1,26 +1,20 @@
 package com.brash.controller;
 
-import com.brash.data.entity.Mark;
 import com.brash.dto.web.AddMarkDTO;
 import com.brash.dto.web.ItemDTO;
-import com.brash.dto.web.MarkDTO;
 import com.brash.dto.web.UserDTO;
-import com.brash.exception.ExceptionBodyResponse;
-import com.brash.exception.NoAvailableMarkException;
 import com.brash.service.ItemService;
 import com.brash.service.MarkService;
 import com.brash.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
