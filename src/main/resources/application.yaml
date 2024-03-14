@@ -1,6 +1,6 @@
 rabbit:
-    queue: ${FILTER_QUEUE} filter-queue
-    exchange: ${FILTER_EXCHANGE} filter-queue
+    queue: ${FILTER_QUEUE}
+    exchange: ${FILTER_EXCHANGE}
 
 similarity:
     smoothing-factor: 0.00001
@@ -10,7 +10,7 @@ times:
     time-update-similarity: ${TIME_UPDATE_SIMILARITY}
 
 server:
-    port: 8080
+    port: 8081
 
 spring:
     jpa:
