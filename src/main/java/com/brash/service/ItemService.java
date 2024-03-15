@@ -8,4 +8,6 @@ public interface ItemService {
     Item addItem(long originalId);
 
     ItemsDTO getSimilarity(long itemId, int offset, int limit);
+
+    void remove(long itemId);
 }
