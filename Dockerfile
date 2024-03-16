@@ -5,6 +5,8 @@ RUN gradle build --no-daemon -x test
 
 FROM openjdk:21
 
+LABEL org.opencontainers.image.title="Sparse data recommendation service"
+
 EXPOSE 8080
 
 RUN mkdir /app
