@@ -63,7 +63,7 @@ public class Item implements Comparable<Item>, HavingMarks {
             synchronized (lock) {
                 if (notGeneratedMarks == null) {
                     notGeneratedMarks = marks.stream()
-                            .filter(mark -> !mark.getIsGenerated())
+                            .filter(mark -> !mark.isGenerated())
                             .toList();
                 }
             }

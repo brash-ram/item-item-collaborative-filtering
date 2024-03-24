@@ -15,7 +15,9 @@ import java.util.Optional;
 @Repository
 public interface MarkRepository extends JpaRepository<Mark, Long> {
 
-    Page<Mark> findAllByIsGenerated(boolean isGenerated, Pageable pageable);
+    Page<Mark> findAllByIsGeneratedAndUser(boolean isGenerated, User user, Pageable pageable);
+
+    Page<Mark> findAllByUser(User user, Pageable pageable);
 
     List<Mark> findAllByMarkLessThan(double value);
 

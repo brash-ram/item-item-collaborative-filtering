@@ -2,6 +2,8 @@ package com.brash.controller;
 
 import com.brash.data.entity.Mark;
 import com.brash.dto.web.ItemsDTO;
+import com.brash.exception.ItemNotFound;
+import com.brash.exception.UserNotFound;
 import com.brash.service.ItemService;
 import com.brash.service.MarkService;
 import com.brash.util.Mapper;
@@ -31,7 +33,7 @@ public class FilterController {
     @GetMapping("/all")
     public ResponseEntity<ItemsDTO> getAll(@NotNull @RequestParam long userId,
                                                  @NotNull @RequestParam int offset,
-                                                 @NotNull @RequestParam int limit) {
+                                                 @NotNull @RequestParam int limit) throws UserNotFound {
         List<Mark> marks = markService.getMarks(userId, offset, limit);
         return ResponseEntity.ok(Mapper.mapToItemsDTO(marks));
     }
@@ -42,7 +44,7 @@ public class FilterController {
     @GetMapping("/generated")
     public ResponseEntity<ItemsDTO> getAllGeneratedMarks(@NotNull @RequestParam long userId,
                                                               @NotNull @RequestParam int offset,
-                                                              @NotNull @RequestParam int limit) {
+                                                              @NotNull @RequestParam int limit) throws UserNotFound {
         List<Mark> marks = markService.getGeneratedMarks(userId, offset, limit);
         return ResponseEntity.ok(Mapper.mapToItemsDTO(marks));
     }
@@ -53,7 +55,7 @@ public class FilterController {
     @GetMapping("/item")
     public ResponseEntity<ItemsDTO> getSimilarityItems(@NotNull @RequestParam long itemId,
                                                             @NotNull @RequestParam int offset,
-                                                            @NotNull @RequestParam int limit) {
+                                                            @NotNull @RequestParam int limit) throws ItemNotFound {
         ItemsDTO items = itemService.getSimilarity(itemId, offset, limit);
         return ResponseEntity.ok(items);
     }

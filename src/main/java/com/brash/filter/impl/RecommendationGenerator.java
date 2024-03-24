@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -91,24 +92,20 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                         try {
                             generateMarkOnMeanCentering(mark, neighbours);
                         } catch (Exception e) {
-//                            log.error(Arrays.toString(e.getStackTrace()));
-                            e.printStackTrace();
+                            log.error(Arrays.toString(e.getStackTrace()));
+//                            e.printStackTrace();
                         }
                         latch.countDown();
-                        if (latch.getCount() % 1000 == 0)
-                            log.debug(String.valueOf(latch.getCount()));
                     });
                 } else if (neighboursWithMark.isEmpty()) {
                     executorService.execute(() -> {
                         try {
                             generateMarkOnVagueSet(mark, neighbours, userNeighbours);
                         } catch (Exception e) {
-//                            log.error(Arrays.toString(e.getStackTrace()));
-                            e.printStackTrace();
+                            log.error(Arrays.toString(e.getStackTrace()));
+//                            e.printStackTrace();
                         }
                         latch.countDown();
-                        if (latch.getCount() % 1000 == 0)
-                            log.info(String.valueOf(latch.getCount()));
                     });
                 } else {
                     List<SimpleSimilarItems> neighboursWithoutMark = neighbours.stream()
@@ -123,12 +120,10 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
                         try {
                             generateMarkOnSparseData(mark, neighboursWithMark, neighboursWithoutMark, userNeighbours);
                         } catch (Exception e) {
-//                            log.error(Arrays.toString(e.getStackTrace()));
-                            e.printStackTrace();
+                            log.error(Arrays.toString(e.getStackTrace()));
+//                            e.printStackTrace();
                         }
                         latch.countDown();
-                        if (latch.getCount() % 1000 == 0)
-                            log.error(String.valueOf(latch.getCount()));
                     });
                 }
             }
@@ -136,12 +131,8 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
         try {
             latch.await();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error(Arrays.toString(e.getStackTrace()));
         }
-        System.out.println("-----------");
-        System.out.println(latch.getCount());
-        System.out.println(numberLatch);
-        System.out.println("-----------");
         return generatedMarks;
     }
 

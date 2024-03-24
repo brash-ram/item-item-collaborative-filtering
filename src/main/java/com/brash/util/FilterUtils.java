@@ -226,7 +226,7 @@ public class FilterUtils {
      */
     public static List<Mark> getNotGeneratedMarks(List<Mark> marks) {
         return marks.stream()
-                .filter(mark -> !mark.getIsGenerated())
+                .filter(mark -> !mark.isGenerated())
                 .toList();
     }
 
@@ -237,7 +237,7 @@ public class FilterUtils {
      */
     public static List<Mark> getNotGeneratedMarks(SortedSet<Mark> marks) {
         return marks.stream()
-                .filter(mark -> !mark.getIsGenerated())
+                .filter(mark -> !mark.isGenerated())
                 .toList();
     }
 
@@ -249,6 +249,18 @@ public class FilterUtils {
     public static List<SimpleSimilarUsers> getSortedListSimilarUsers(List<SimpleSimilarUsers> neighbours) {
         synchronized (sortLock) {
             neighbours.sort(Comparator.comparingDouble(SimpleSimilarUsers::similarValue));
+        }
+        return neighbours;
+    }
+
+    /**
+     * Отсортировать список пар сходства элементов
+     * @param neighbours Пары сходства элементов
+     * @return Отсортированный список
+     */
+    public static List<SimpleSimilarItems> getSortedListSimilarItems(List<SimpleSimilarItems> neighbours) {
+        synchronized (sortLock) {
+            neighbours.sort(Comparator.comparingDouble(SimpleSimilarItems::similarValue));
         }
         return neighbours;
     }

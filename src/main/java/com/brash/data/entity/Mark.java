@@ -37,7 +37,7 @@ public class Mark implements Comparable<Mark> {
     private Double mark;
 
     @Column(name = "is_generated", nullable = false)
-    private Boolean isGenerated = false;
+    private boolean isGenerated = false;
 
     @Override
     public int compareTo(Mark o) {

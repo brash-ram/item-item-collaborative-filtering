@@ -284,7 +284,7 @@ public class FilterModel implements Filter, AutoCloseable {
                 Set<Item> itemsWithoutUserMark = Sets.difference(items, allUserItems);
 
                 List<Mark> generatedMarks = user.getMarks().stream()
-                        .filter(Mark::getIsGenerated)
+                        .filter(Mark::isGenerated)
                         .toList();
 
                 Set<Item> userItemsWithGeneratedMark = generatedMarks.stream()
@@ -296,7 +296,7 @@ public class FilterModel implements Filter, AutoCloseable {
                     try {
                         mark = FilterUtils.getMarkFromUser(generatedMarks, user);
                     } catch (Exception ignored) {
-                        mark = new Mark().setItem(item).setUser(user).setIsGenerated(true);
+                        mark = new Mark().setItem(item).setUser(user).setGenerated(true);
                     }
 
                     if (generatingMarksForItem.containsKey(item)) {

@@ -3,6 +3,7 @@ package com.brash.service.impl;
 import com.brash.data.entity.Item;
 import com.brash.data.jpa.ItemRepository;
 import com.brash.dto.web.ItemsDTO;
+import com.brash.exception.ItemNotFound;
 import com.brash.filter.SimilarityStorage;
 import com.brash.filter.data.SimpleSimilarItems;
 import com.brash.service.ItemService;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +28,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemsDTO getSimilarity(long itemId, int offset, int limit) {
-        Item item = itemRepository.findByOriginalId(itemId);
+    public ItemsDTO getSimilarity(long itemId, int offset, int limit) throws ItemNotFound {
+        Item item = itemRepository.findByOriginalId(itemId).orElseThrow(() -> new ItemNotFound(itemId));
         List<SimpleSimilarItems> similarItems = similarityStorage.getNeighbours(item, offset, limit);
         return new ItemsDTO(
                 similarItems.stream()
