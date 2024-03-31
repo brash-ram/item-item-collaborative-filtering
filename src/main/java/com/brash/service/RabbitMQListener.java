@@ -33,17 +33,7 @@ public class RabbitMQListener {
 
     @RabbitHandler
     @SneakyThrows
-    public void addNewMark(RabbitMarkDTO dto) throws UserNotFound, ItemNotFound {
+    public void addNewMark(RabbitMarkDTO dto)  {
         markService.addMark(dto.mark(), dto.userId(), dto.itemId());
-    }
-
-    @RabbitHandler
-    public void removeItem(RabbitItemDTO dto) {
-        itemService.remove(dto.id());
-    }
-
-    @RabbitHandler
-    public void removeUser(RabbitUserDTO dto) {
-        userService.remove(dto.id());
     }
 }

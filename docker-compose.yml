@@ -4,28 +4,28 @@ networks:
     backend:
 
 services:
-#    app:
-#        container_name: filter_container
-#        image: filter_image
-#        depends_on:
-#            - rabbitmq
-#            - postgres
-#        build:
-#            context: .
-#        environment:
-#            DB_URL: "jdbc:postgresql://postgres:5432/filter"
-#            DB_USERNAME: "postgres"
-#            DB_PASSWORD: "qwerty"
-#            RABBIT_HOST: "rabbitmq"
-#            RABBIT_USERNAME: "user"
-#            RABBIT_PASSWORD: "qwerty"
-#            RABBIT_PORT: 5672
-#            FILTER_QUEUE: "filter-queue"
-#            FILTER_EXCHANGE: "filter-queue"
-#        ports:
-#            - "8080:8080"
-#        networks:
-#            - backend
+    app:
+        container_name: collaborative_filter_container
+        image: brashram/filter_image
+        depends_on:
+            - rabbitmq
+            - postgres
+        build:
+            context: .
+        environment:
+            DB_URL: "jdbc:postgresql://postgres:5432/filter"
+            DB_USERNAME: "postgres"
+            DB_PASSWORD: "qwerty"
+            RABBIT_HOST: "rabbitmq"
+            RABBIT_USERNAME: "user"
+            RABBIT_PASSWORD: "qwerty"
+            RABBIT_PORT: 5672
+            FILTER_QUEUE: "filter-queue"
+            FILTER_EXCHANGE: "filter-queue"
+        ports:
+            - "8080:8080"
+        networks:
+            - backend
 
     postgres:
         container_name: postgres_container

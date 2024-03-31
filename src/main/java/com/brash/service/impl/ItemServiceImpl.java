@@ -24,7 +24,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item addItem(long originalId) {
-        return itemRepository.save(new Item().setOriginalId(originalId));
+        if (!itemRepository.existsByOriginalId(originalId)) {
+            return itemRepository.save(new Item().setOriginalId(originalId));
+        }
+        return null;
     }
 
     @Override
