@@ -1,6 +1,9 @@
 rabbit:
     queue: ${FILTER_QUEUE}
     exchange: ${FILTER_EXCHANGE}
+    add-item-class: ${ITEM_CLASS}
+    add-mark-class: ${MARK_CLASS}
+    add-user-class: ${USER_MARK}
 
 similarity:
     smoothing-factor: 0.00001
