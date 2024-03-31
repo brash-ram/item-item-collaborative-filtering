@@ -22,6 +22,8 @@ services:
             RABBIT_PORT: 5672
             FILTER_QUEUE: "filter-queue"
             FILTER_EXCHANGE: "filter-queue"
+            TIME_UPDATE_FILTER: 30000
+            TIME_UPDATE_SIMILARITY: 30000
         ports:
             - "8080:8080"
         networks:
