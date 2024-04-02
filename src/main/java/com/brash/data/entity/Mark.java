@@ -17,7 +17,6 @@ import java.util.Objects;
 @Getter
 @Setter
 @Accessors(chain = true)
-@ToString
 public class Mark implements Comparable<Mark> {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "Mark_SEQ")
@@ -55,5 +54,15 @@ public class Mark implements Comparable<Mark> {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Mark{" +
+                "user=" + user +
+                ", item=" + item +
+                ", mark=" + mark +
+                ", isGenerated=" + isGenerated +
+                '}';
     }
 }

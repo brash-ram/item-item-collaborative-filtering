@@ -8,8 +8,8 @@ services:
         container_name: collaborative_filter_container
         image: brashram/filter_image
         depends_on:
-            - rabbitmq
-            - postgres
+            - rabbitmq5
+            - postgres5
         build:
             context: .
         environment:
@@ -29,7 +29,7 @@ services:
         networks:
             - backend
 
-    postgres:
+    postgres5:
         container_name: postgres_container
         image: postgres
         environment:
@@ -51,7 +51,7 @@ services:
             - backend
 
 
-    rabbitmq:
+    rabbitmq5:
         image: rabbitmq:3-management
         restart: always
         environment:

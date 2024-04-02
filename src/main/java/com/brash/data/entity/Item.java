@@ -21,7 +21,6 @@ import java.util.TreeSet;
 @Getter
 @Setter
 @Accessors(chain = true)
-@ToString
 public class Item implements Comparable<Item>, HavingMarks {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "Item_SEQ")
@@ -93,5 +92,13 @@ public class Item implements Comparable<Item>, HavingMarks {
     @Override
     public int compareTo(Item o) {
         return Long.compare(id, o.getId());
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "id=" + id +
+                ", originalId=" + originalId +
+                '}';
     }
 }

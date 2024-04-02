@@ -20,7 +20,6 @@ import java.util.TreeSet;
 @Getter
 @Setter
 @Accessors(chain = true)
-@ToString
 public class User implements HavingMarks {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "User_SEQ")
@@ -30,6 +29,14 @@ public class User implements HavingMarks {
 
     @Column(name = "original_id", nullable = false)
     private Long originalId;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", originalId=" + originalId +
+                '}';
+    }
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     @ToString.Exclude

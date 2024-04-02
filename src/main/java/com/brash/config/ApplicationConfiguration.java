@@ -4,6 +4,8 @@ import com.brash.dto.rabbit.RabbitItemDTO;
 import com.brash.dto.rabbit.RabbitMarkDTO;
 import com.brash.dto.rabbit.RabbitUserDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.index.qual.SameLen;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.support.converter.ClassMapper;
 import org.springframework.amqp.support.converter.DefaultClassMapper;
@@ -13,7 +15,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,6 +28,7 @@ import java.util.concurrent.Executors;
 @Configuration
 @RequiredArgsConstructor
 @EnableWebMvc
+@Slf4j
 public class ApplicationConfiguration {
 
     private final RabbitMQConfig rabbitMQConfig;
@@ -66,14 +71,18 @@ public class ApplicationConfiguration {
 
     @Bean
     public ClassMapper classMapper() {
+        log.error("start");
         Map<String, Class< ? >> mappings = new HashMap<>();
         mappings.put(rabbitMQConfig.addItemClass(), RabbitItemDTO.class);
         mappings.put(rabbitMQConfig.addUserClass(), RabbitUserDTO.class);
         mappings.put(rabbitMQConfig.addMarkClass(), RabbitMarkDTO.class);
 
         DefaultClassMapper classMapper = new DefaultClassMapper();
-        classMapper.setTrustedPackages("com.brash.dto.rabbit.*");
+        classMapper.setTrustedPackages(getPackage(rabbitMQConfig.addItemClass()));
+        classMapper.setTrustedPackages(getPackage(rabbitMQConfig.addUserClass()));
+        classMapper.setTrustedPackages(getPackage(rabbitMQConfig.addMarkClass()));
         classMapper.setIdClassMapping(mappings);
+        log.error("finish");
         return classMapper;
     }
 
@@ -82,5 +91,18 @@ public class ApplicationConfiguration {
         Jackson2JsonMessageConverter jsonConverter = new Jackson2JsonMessageConverter();
         jsonConverter.setClassMapper(classMapper);
         return jsonConverter;
+    }
+
+    private String getPackage(String classPath) {
+        StringBuilder packagePath = new StringBuilder();
+        List<String> paths = Arrays.stream(classPath.split(".")).toList();
+
+        for (String i : paths) {
+            packagePath.append(i).append(".");
+        }
+        packagePath.append("*");
+        log.info(packagePath.toString());
+        log.info(classPath);
+        return packagePath.toString();
     }
 }
