@@ -26,7 +26,11 @@ public class FilterScheduler {
     @Scheduled(fixedDelayString = "${times.time-update-similarity}")
     public void updateSimilarity() {
         filter.generateItemAndUserSimilarity();
-        log.error(similarityStorage.getUserNeighbours().toString());
-        log.error(similarityStorage.getItemNeighbours().toString());
+        if (similarityStorage.getUserNeighbours() != null) {
+            log.error(similarityStorage.getUserNeighbours().toString());
+        }
+        if (similarityStorage.getItemNeighbours() != null) {
+            log.error(similarityStorage.getItemNeighbours().toString());
+        }
     }
 }

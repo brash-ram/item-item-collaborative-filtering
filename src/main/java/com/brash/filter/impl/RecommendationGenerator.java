@@ -136,77 +136,77 @@ public class RecommendationGenerator implements ItemToItemRecommendation {
         return generatedMarks;
     }
 
-    /**
-     * Генерирует оценку на основе оценок пользователя и ближайших соседей пользователя.
-     * Используется когда пользователь оценил не всех ближайших соседей элемента.
-     * Отсутствующие оценки берутся у ближайшего соседа пользователя.
-     * @param mark Оценка для генерации
-     * @param neighboursWithMark Соседи элемента с оценкой пользователя
-     * @param neighboursWithoutMark Соседи элемента без оценки пользователя
-     * @param similarUsers Соседи пользователей
-     * @throws Exception Ошибка отсутствия ожидаемой оценки пользователя
-     */
-    private void generateMarkOnSparseData(
-            Mark mark,
-            List<SimpleSimilarItems> neighboursWithMark,
-            List<SimpleSimilarItems> neighboursWithoutMark,
-            UserNeighbours similarUsers
-    ) throws Exception {
-        Item currentItem = mark.getItem();
-        User currentUser = mark.getUser();
-        double averageMarkValueCurrentItem = currentItem.getAverageMarks();
-        double top = 0.0;
-        double bottom = 0.0;
-        for (SimpleSimilarItems item : neighboursWithMark) {
-            if (Thread.currentThread().isInterrupted()) {
-                return;
-            }
-            Mark userMark = getMarkFromUser(
+/**
+ * Генерирует оценку на основе оценок пользователя и ближайших соседей пользователя.
+ * Используется когда пользователь оценил не всех ближайших соседей элемента.
+ * Отсутствующие оценки берутся у ближайшего соседа пользователя.
+ * @param mark Оценка для генерации
+ * @param neighboursWithMark Соседи элемента с оценкой пользователя
+ * @param neighboursWithoutMark Соседи элемента без оценки пользователя
+ * @param similarUsers Соседи пользователей
+ * @throws Exception Ошибка отсутствия ожидаемой оценки пользователя
+ */
+private void generateMarkOnSparseData(
+        Mark mark,
+        List<SimpleSimilarItems> neighboursWithMark,
+        List<SimpleSimilarItems> neighboursWithoutMark,
+        UserNeighbours similarUsers
+) throws Exception {
+    Item currentItem = mark.getItem();
+    User currentUser = mark.getUser();
+    double averageMarkValueCurrentItem = currentItem.getAverageMarks();
+    double top = 0.0;
+    double bottom = 0.0;
+    for (SimpleSimilarItems item : neighboursWithMark) {
+        if (Thread.currentThread().isInterrupted()) {
+            return;
+        }
+        Mark userMark = getMarkFromUser(
+                getOtherItem(item, currentItem).getNotGeneratedMarks(),
+                currentUser
+        );
+
+        double averageMarkValueNeighboringItem = userMark.getItem().getAverageMarks();
+
+        top += item.similarValue() * (userMark.getMark() - averageMarkValueNeighboringItem);
+        bottom += Math.abs(item.similarValue());
+    }
+
+    for (SimpleSimilarItems item : neighboursWithoutMark) {
+        if (Thread.currentThread().isInterrupted()) {
+            return;
+        }
+        SimilarUser similarUserWithMark;
+
+        try {
+            similarUserWithMark = getMarkFromSimilarUser(
                     getOtherItem(item, currentItem).getNotGeneratedMarks(),
+                    similarUsers,
                     currentUser
             );
-
-            double averageMarkValueNeighboringItem = userMark.getItem().getAverageMarks();
-
-            top += item.similarValue() * (userMark.getMark() - averageMarkValueNeighboringItem);
-            bottom += Math.abs(item.similarValue());
-        }
-
-        for (SimpleSimilarItems item : neighboursWithoutMark) {
-            if (Thread.currentThread().isInterrupted()) {
-                return;
-            }
-            SimilarUser similarUserWithMark;
-
-            try {
-                similarUserWithMark = getMarkFromSimilarUser(
-                        getOtherItem(item, currentItem).getNotGeneratedMarks(),
-                        similarUsers,
-                        currentUser
-                );
-            } catch (Exception e) {
+        } catch (Exception e) {
 //                log.error(e.getMessage());
-                e.printStackTrace();
-                continue;
-            }
-            Mark neighboringMark = similarUserWithMark.mark();
-            SimpleSimilarUsers similarUser = similarUserWithMark.similarUsers();
-
-            double averageMarkValueNeighboringItem = neighboringMark.getItem().getAverageMarks();
-
-            top += similarUser.similarValue() * item.similarValue() *
-                    (neighboringMark.getMark() - averageMarkValueNeighboringItem);
-
-            bottom += similarUser.similarValue() * item.similarValue();
+            e.printStackTrace();
+            continue;
         }
+        Mark neighboringMark = similarUserWithMark.mark();
+        SimpleSimilarUsers similarUser = similarUserWithMark.similarUsers();
 
-        if (top == 0.0 || bottom == 0.0)
-            throw new Exception("Failed to calculate rating for item " + currentItem.getId() + " and user " + currentUser.getId());
-        mark.setMark(averageMarkValueCurrentItem + (top / bottom));
-        synchronized (lock) {
-            generatedMarks.add(mark);
-        }
+        double averageMarkValueNeighboringItem = neighboringMark.getItem().getAverageMarks();
+
+        top += similarUser.similarValue() * item.similarValue() *
+                (neighboringMark.getMark() - averageMarkValueNeighboringItem);
+
+        bottom += similarUser.similarValue() * item.similarValue();
     }
+
+    if (top == 0.0 || bottom == 0.0)
+        throw new Exception("Failed to calculate rating for item " + currentItem.getId() + " and user " + currentUser.getId());
+    mark.setMark(averageMarkValueCurrentItem + (top / bottom));
+    synchronized (lock) {
+        generatedMarks.add(mark);
+    }
+}
 
     /**
      * Генерирует оценку на основе оценок ближайших соседей пользователя.

@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface MarkService {
 
-    Mark addMark(double mark, long userId, long itemId) throws UserNotFound, ItemNotFound;
+    Mark addMark(double mark, long userId, long itemId) throws UserNotFound, ItemNotFound, NoAvailableMarkException;
 
     Mark getMark(long userId, long itemId) throws NoAvailableMarkException, UserNotFound, ItemNotFound;
     List<Mark> getGeneratedMarks(long userId) throws UserNotFound;

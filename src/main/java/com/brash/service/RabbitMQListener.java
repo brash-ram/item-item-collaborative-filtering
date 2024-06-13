@@ -34,7 +34,7 @@ public class RabbitMQListener {
     }
 
     @RabbitHandler
-    public void addNewMark(RabbitMarkDTO dto)  {
+    public void addNewMark(RabbitMarkDTO dto) {
         try {
             markService.addMark(dto.mark(), dto.userId(), dto.itemId());
         } catch (Exception e) {

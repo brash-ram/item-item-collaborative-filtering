@@ -30,15 +30,29 @@ public class MarkServiceImpl implements MarkService {
 
     @Override
     @Transactional
-    public Mark addMark(double mark, long userId, long itemId) throws UserNotFound, ItemNotFound {
+    public Mark addMark(double mark, long userId, long itemId) throws UserNotFound, ItemNotFound, NoAvailableMarkException {
         var optionalUser = userRepository.findByOriginalId(userId).orElseThrow(() -> new UserNotFound(userId));
         var optionalItem = itemRepository.findByOriginalId(itemId).orElseThrow(() -> new ItemNotFound(itemId));
-        return markRepository.save(
-                new Mark()
-                        .setItem(optionalItem)
-                        .setUser(optionalUser)
-                        .setMark(mark)
-        );
+        Optional<Mark> markOptional = markRepository.findByUserEqualsAndItemEquals(optionalUser, optionalItem);
+        if (markOptional.isPresent()) {
+            Mark markObjet = markOptional.get();
+            if (markObjet.isGenerated() || markObjet.getMark() < mark) {
+                return markRepository.save(
+                        new Mark()
+                                .setItem(optionalItem)
+                                .setUser(optionalUser)
+                                .setMark(mark)
+                );
+            }
+        } else {
+            return markRepository.save(
+                    new Mark()
+                            .setItem(optionalItem)
+                            .setUser(optionalUser)
+                            .setMark(mark)
+            );
+        }
+        throw new NoAvailableMarkException("Mark for item " + itemId + " and user " + userId + " already exist");
     }
 
     @Override

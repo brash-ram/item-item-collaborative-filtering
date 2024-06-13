@@ -6,6 +6,7 @@ import com.brash.data.entity.Item;
 import com.brash.data.entity.Mark;
 import com.brash.data.entity.User;
 import com.brash.data.jpa.MarkRepository;
+import com.brash.exception.UserNotFound;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,14 +41,13 @@ public class MarkServiceTests {
     @Test
     @Transactional
     @Rollback
-    public void getGeneratedMarksTest() {
+    public void getGeneratedMarksTest() throws UserNotFound {
         User user = userService.addUser(1L);
         Item item = itemService.addItem(1L);
-        markRepository.save(new Mark().setItem(item).setUser(user).setMark(1.0).setIsGenerated(true));
-        markRepository.save(new Mark().setItem(item).setUser(user).setMark(5.0).setIsGenerated(true));
+        markRepository.save(new Mark().setItem(item).setUser(user).setMark(1.0).setGenerated(true));
+        markRepository.save(new Mark().setItem(item).setUser(user).setMark(5.0).setGenerated(true));
 
-        List<Mark> marks = null;
-        marks = markService.getGeneratedMarks(1L);
+        List<Mark> marks = markService.getGeneratedMarks(1L);
 
         assertNotNull(marks);
         assertEquals(1, marks.size());

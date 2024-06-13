@@ -4,6 +4,7 @@ import com.brash.dto.web.AddMarkDTO;
 import com.brash.dto.web.ItemDTO;
 import com.brash.dto.web.UserDTO;
 import com.brash.exception.ItemNotFound;
+import com.brash.exception.NoAvailableMarkException;
 import com.brash.exception.UserNotFound;
 import com.brash.service.ItemService;
 import com.brash.service.MarkService;
@@ -48,7 +49,7 @@ public class MainController {
             summary = "Добавить оценку"
     )
     @PostMapping("/add/mark")
-    public ResponseEntity<AddMarkDTO> addMark(@NotNull @Valid @RequestBody AddMarkDTO addMarkDTO) throws UserNotFound, ItemNotFound {
+    public ResponseEntity<AddMarkDTO> addMark(@NotNull @Valid @RequestBody AddMarkDTO addMarkDTO) throws UserNotFound, ItemNotFound, NoAvailableMarkException {
         markService.addMark(addMarkDTO.mark(), addMarkDTO.userId(), addMarkDTO.itemId());
         return ResponseEntity.ok(addMarkDTO);
     }
