@@ -1,12 +1,19 @@
 rabbit:
-    queue: filter-queue
-    exchange: filter-queue
+    queue: ${FILTER_QUEUE}
+    exchange: ${FILTER_EXCHANGE}
+    add-item-class: ${ITEM_CLASS}
+    add-mark-class: ${MARK_CLASS}
+    add-user-class: ${USER_CLASS}
 
 similarity:
-    smoothing-factor: 0.1
+    smoothing-factor: 0.00001
+
+times:
+    time-update-filter: ${TIME_UPDATE_FILTER}
+    time-update-similarity: ${TIME_UPDATE_SIMILARITY}
 
 server:
-    port: 8080
+    port: 8081
 
 spring:
     jpa:
@@ -23,18 +30,23 @@ spring:
         open-in-view: false
         show-sql: false
         hibernate:
-            ddl-auto: create
+            ddl-auto: update
     datasource:
-        url: "jdbc:postgresql://localhost:5432/filter"
-        username: postgres
-        password: qwerty
+        url: ${DB_URL}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
         driver-class-name: org.postgresql.Driver
 
-#    rabbitmq:
-#        host: ${RABBIT_HOST}
-#        username: user
-#        password: qwerty
-#        port: 5672
+    rabbitmq:
+        host: ${RABBIT_HOST}
+        username: ${RABBIT_USERNAME}
+        password: ${RABBIT_PASSWORD}
+        port: ${RABBIT_PORT}
 
     application:
         name: collaborative-filter
+
+
+logging:
+    level:
+        root: info

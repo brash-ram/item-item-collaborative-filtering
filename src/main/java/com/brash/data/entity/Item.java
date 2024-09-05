@@ -1,12 +1,15 @@
 package com.brash.data.entity;
 
-import com.brash.util.Utils;
+import com.brash.util.FilterUtils;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.Hibernate;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Элемент системы совместной фильтрации
@@ -18,7 +21,6 @@ import java.util.*;
 @Getter
 @Setter
 @Accessors(chain = true)
-@ToString
 public class Item implements Comparable<Item>, HavingMarks {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "Item_SEQ")
@@ -47,7 +49,7 @@ public class Item implements Comparable<Item>, HavingMarks {
         if (averageMark == 0.0 && getNotGeneratedMarks().size() != 0) {
             synchronized (lock) {
                 if (averageMark == 0.0) {
-                    averageMark = Utils.getAverageMark(notGeneratedMarks);
+                    averageMark = FilterUtils.getAverageMark(notGeneratedMarks);
                 }
             }
 
@@ -60,7 +62,7 @@ public class Item implements Comparable<Item>, HavingMarks {
             synchronized (lock) {
                 if (notGeneratedMarks == null) {
                     notGeneratedMarks = marks.stream()
-                            .filter(mark -> !mark.getIsGenerated())
+                            .filter(mark -> !mark.isGenerated())
                             .toList();
                 }
             }
@@ -90,5 +92,13 @@ public class Item implements Comparable<Item>, HavingMarks {
     @Override
     public int compareTo(Item o) {
         return Long.compare(id, o.getId());
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "id=" + id +
+                ", originalId=" + originalId +
+                '}';
     }
 }

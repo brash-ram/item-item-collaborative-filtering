@@ -9,4 +9,9 @@ public interface Filter {
      * Запуск обновления старых и генерации новых оценок рекомендации
      */
     void updateRecommendations();
+
+    /**
+     * Обновляет сходство элементов и пользователей
+     */
+    void generateItemAndUserSimilarity();
 }
